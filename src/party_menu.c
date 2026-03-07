@@ -69,6 +69,9 @@
 #include "constants/songs.h"
 #include "constants/sound.h"
 
+#include "field_specials.h"
+#include "naming_screen.h"
+
 #define PARTY_PAL_SELECTED     (1 << 0)
 #define PARTY_PAL_FAINTED      (1 << 1)
 #define PARTY_PAL_TO_SWITCH    (1 << 2)
@@ -128,7 +131,7 @@ struct PartyMenuInternal
     u32 spriteIdCancelPokeball:7;
     u32 messageId:14;
     u8 windowId[3];
-    u8 actions[8];
+    u8 actions[9];
     u8 numActions;
     u16 palBuffer[BG_PLTT_SIZE / sizeof(u16)];
     s16 data[16];
@@ -164,6 +167,7 @@ static void CursorCB_Store(u8 taskId);
 static void CursorCB_Register(u8 taskId);
 static void CursorCB_Trade1(u8 taskId);
 static void CursorCB_Trade2(u8 taskId);
+static void CursorCB_Nickname(u8 taskId);
 static void CursorCB_FieldMove(u8 taskId);
 static bool8 SetUpFieldMove_Fly(void);
 static bool8 SetUpFieldMove_Waterfall(void);
@@ -398,6 +402,8 @@ static void ItemUseCB_ReplaceMoveWithTMHM(u8 taskId, TaskFunc func);
 static void Task_ReplaceMoveWithTMHM(u8 taskId);
 static void CB2_UseEvolutionStone(void);
 static bool8 MonCanEvolve(void);
+static void CB2_ShowPokemonNicknameScreen(void);
+static void CB2_ReturnToPartyMenuFromNicknameScreen(void);
 
 static EWRAM_DATA struct PartyMenuInternal *sPartyMenuInternal = NULL;
 EWRAM_DATA struct PartyMenu gPartyMenu = {0};
@@ -2960,6 +2966,23 @@ static void SetPartyMonSelectionActions(struct Pokemon *mons, u8 slotId, u8 acti
     }
 }
 
+static bool32 IsMonOT(struct Pokemon *mon)
+{
+    u8 tmpStr[20];
+
+    if (GetPlayerTrainerId() != GetMonData(mon, MON_DATA_OT_ID, NULL))
+        return FALSE;
+
+    if (gSaveBlock2Ptr->playerGender != GetMonData(mon, MON_DATA_OT_GENDER))
+        return FALSE;
+
+    GetMonData(mon, MON_DATA_OT_NAME, tmpStr);
+    if (StringCompare(tmpStr, gSaveBlock2Ptr->playerName))
+        return FALSE;
+
+    return TRUE;
+}
+
 static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
 {
     u8 i, j;
@@ -2980,6 +3003,8 @@ static void SetPartyMonFieldSelectionActions(struct Pokemon *mons, u8 slotId)
     }
     if (GetMonData(&mons[1], MON_DATA_SPECIES) != SPECIES_NONE)
         AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, CURSOR_OPTION_SWITCH);
+    if (IsMonOT(&mons[slotId]))
+        AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, CURSOR_OPTION_NICKNAME);
     if (ItemIsMail(GetMonData(&mons[slotId], MON_DATA_HELD_ITEM)))
         AppendToList(sPartyMenuInternal->actions, &sPartyMenuInternal->numActions, CURSOR_OPTION_MAIL);
     else
@@ -3900,6 +3925,33 @@ static void CursorCB_Trade1(u8 taskId)
 // Not implemented, and normally unreachable because PARTY_MENU_TYPE_SPIN_TRADE is never used
 static void CursorCB_Trade2(u8 taskId)
 {
+}
+
+static void CursorCB_Nickname(u8 taskId)
+{
+    PlaySE(SE_SELECT);
+    sPartyMenuInternal->exitCallback = CB2_ShowPokemonNicknameScreen;
+    Task_ClosePartyMenu(taskId);
+}
+
+static void CB2_ShowPokemonNicknameScreen(void)
+{
+    u16 species;
+    u8 gender;
+    u32 personality;
+
+    GetMonData(&gPlayerParty[gPartyMenu.slotId], MON_DATA_NICKNAME, gStringVar2);
+    species = GetMonData(&gPlayerParty[gPartyMenu.slotId], MON_DATA_SPECIES, NULL);
+    gender = GetMonGender(&gPlayerParty[gPartyMenu.slotId]);
+    personality = GetMonData(&gPlayerParty[gPartyMenu.slotId], MON_DATA_PERSONALITY, NULL);
+    DoNamingScreen(NAMING_SCREEN_NICKNAME, gStringVar2, species, gender, personality, CB2_ReturnToPartyMenuFromNicknameScreen);
+}
+
+static void CB2_ReturnToPartyMenuFromNicknameScreen(void)
+{
+    gPaletteFade.bufferTransferDisabled = TRUE;
+    SetMonData(&gPlayerParty[gPartyMenu.slotId], MON_DATA_NICKNAME, gStringVar2);
+    InitPartyMenu(gPartyMenu.menuType, KEEP_PARTY_LAYOUT, gPartyMenu.action, TRUE, PARTY_MSG_DO_WHAT_WITH_MON, Task_TryCreateSelectionWindow, gPartyMenu.exitCallback);
 }
 
 static void CursorCB_FieldMove(u8 taskId)
