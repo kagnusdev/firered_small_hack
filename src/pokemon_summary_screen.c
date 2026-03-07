@@ -5076,6 +5076,8 @@ static s8 SeekToNextMonInSingleParty(s8 direction)
 {
     struct Pokemon * partyMons = sMonSummaryScreen->monList.mons;
     u8 seekIndex = sLastViewedMonIndex;
+    if (sMonSummaryScreen->lastIndex == 0)
+        return -1;
 
     if (sMonSummaryScreen->curPageIndex == 0)
     {
