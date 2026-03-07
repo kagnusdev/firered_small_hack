@@ -137,6 +137,18 @@ void SetBoxWallpaper(u8 boxId, u8 wallpaperId)
         gPokemonStoragePtr->boxWallpapers[boxId] = wallpaperId;
 }
 
+static inline s16 calcNextIndex(s16 i, s16 adder, u8 maxIndex)
+{
+    i += adder;
+
+    if (i < 0)
+        i = maxIndex;
+    else if (i > maxIndex)
+        i = 0;
+
+    return i;
+}
+
 s16 SeekToNextMonInBox(struct BoxPokemon * boxMons, s8 curIndex, u8 maxIndex, u8 flags)
 {
     // flags:
@@ -144,6 +156,7 @@ s16 SeekToNextMonInBox(struct BoxPokemon * boxMons, s8 curIndex, u8 maxIndex, u8
     // bit 1: Search backwards
     s16 i;
     s16 adder;
+
     if (flags == 0 || flags == 1)
         adder = 1;
     else
@@ -151,7 +164,7 @@ s16 SeekToNextMonInBox(struct BoxPokemon * boxMons, s8 curIndex, u8 maxIndex, u8
 
     if (flags == 1 || flags == 3)
     {
-        for (i = curIndex + adder; i >= 0 && i <= maxIndex; i += adder)
+        for (i = calcNextIndex(curIndex, adder, maxIndex); i != curIndex; i = calcNextIndex(i, adder, maxIndex))
         {
             if (GetBoxMonData(&boxMons[i], MON_DATA_SPECIES) != SPECIES_NONE)
                 return i;
@@ -159,7 +172,7 @@ s16 SeekToNextMonInBox(struct BoxPokemon * boxMons, s8 curIndex, u8 maxIndex, u8
     }
     else
     {
-        for (i = curIndex + adder; i >= 0 && i <= maxIndex; i += adder)
+        for (i = calcNextIndex(curIndex, adder, maxIndex); i != curIndex; i = calcNextIndex(i, adder, maxIndex))
         {
             if (GetBoxMonData(&boxMons[i], MON_DATA_SPECIES) != SPECIES_NONE
                 && !GetBoxMonData(&boxMons[i], MON_DATA_IS_EGG))
