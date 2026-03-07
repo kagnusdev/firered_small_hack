@@ -5125,7 +5125,7 @@ u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem)
                     targetSpecies = gEvolutionTable[species][i].targetSpecies;
                     
                     // Prevent cross-generational evolutions like Scizor and Steelix until the National Pokedex is obtained
-                    if (IsNationalPokedexEnabled() || targetSpecies <= KANTO_SPECIES_END)
+                    // if (IsNationalPokedexEnabled() || targetSpecies <= KANTO_SPECIES_END)
                     {
                         heldItem = ITEM_NONE;
                         SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);
