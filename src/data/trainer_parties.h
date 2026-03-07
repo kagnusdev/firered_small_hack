@@ -3721,7 +3721,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_RivalOaksLabSquirtle[] =
     {
         .iv = 0,
         .lvl = 5,
-        .species = SPECIES_SQUIRTLE,
+        .species = SPECIES_MUDKIP,
     },
 };
 
@@ -3751,8 +3751,8 @@ static const struct TrainerMonNoItemCustomMoves sParty_RivalRoute22EarlySquirtle
     {
         .iv = 50,
         .lvl = 9,
-        .species = SPECIES_SQUIRTLE,
-        .moves = {MOVE_TACKLE, MOVE_TAIL_WHIP, MOVE_NONE, MOVE_NONE},
+        .species = SPECIES_MUDKIP,
+        .moves = {MOVE_TACKLE, MOVE_GROWL, MOVE_NONE, MOVE_NONE},
     },
 };
 
@@ -3808,8 +3808,8 @@ static const struct TrainerMonNoItemCustomMoves sParty_RivalCeruleanSquirtle[] =
     {
         .iv = 100,
         .lvl = 18,
-        .species = SPECIES_SQUIRTLE,
-        .moves = {MOVE_TACKLE, MOVE_TAIL_WHIP, MOVE_WITHDRAW, MOVE_WATER_GUN},
+        .species = SPECIES_MUDKIP,
+        .moves = {MOVE_TACKLE, MOVE_GROWL, MOVE_WATER_GUN, MOVE_NONE},
     },
 };
 
@@ -3863,7 +3863,7 @@ static const struct TrainerMonNoItemCustomMoves sParty_RivalCeruleanCharmander[]
         .iv = 100,
         .lvl = 18,
         .species = SPECIES_TORCHIC,
-        .moves = {MOVE_METAL_CLAW, MOVE_EMBER, MOVE_GROWL, MOVE_SCRATCH},
+        .moves = {MOVE_PECK, MOVE_EMBER, MOVE_GROWL, MOVE_SCRATCH},
     },
 };
 
@@ -5828,7 +5828,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_RivalSsAnneSquirtle[] = 
     {
         .iv = 100,
         .lvl = 20,
-        .species = SPECIES_WARTORTLE,
+        .species = SPECIES_MARSHTOMP,
     },
 };
 
@@ -5902,7 +5902,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_RivalPokemonTowerSquirtl
     {
         .iv = 100,
         .lvl = 25,
-        .species = SPECIES_WARTORTLE,
+        .species = SPECIES_MARSHTOMP,
     },
 };
 
@@ -5986,7 +5986,7 @@ static const struct TrainerMonNoItemDefaultMoves sParty_RivalSilphSquirtle[] = {
     {
         .iv = 150,
         .lvl = 40,
-        .species = SPECIES_BLASTOISE,
+        .species = SPECIES_SWAMPERT,
     },
 };
 
@@ -6080,8 +6080,8 @@ static const struct TrainerMonNoItemCustomMoves sParty_RivalRoute22LateSquirtle[
     {
         .iv = 250,
         .lvl = 53,
-        .species = SPECIES_BLASTOISE,
-        .moves = {MOVE_WATER_GUN, MOVE_RAIN_DANCE, MOVE_BITE, MOVE_RAPID_SPIN},
+        .species = SPECIES_SWAMPERT,
+        .moves = {MOVE_MUDDY_WATER, MOVE_RAIN_DANCE, MOVE_EARTHQUAKE, MOVE_TAKE_DOWN},
     },
 };
 
@@ -6202,9 +6202,9 @@ static const struct TrainerMonItemCustomMoves sParty_ChampionFirstSquirtle[] = {
     {
         .iv = 255,
         .lvl = 63,
-        .species = SPECIES_BLASTOISE,
+        .species = SPECIES_SWAMPERT,
         .heldItem = ITEM_SITRUS_BERRY,
-        .moves = {MOVE_HYDRO_PUMP, MOVE_RAIN_DANCE, MOVE_SKULL_BASH, MOVE_BITE},
+        .moves = {MOVE_SURF, MOVE_RAIN_DANCE, MOVE_EARTHQUAKE, MOVE_BRICK_BREAK},
     },
 };
 
@@ -10752,9 +10752,9 @@ static const struct TrainerMonItemCustomMoves sParty_ChampionRematchSquirtle[] =
     {
         .iv = 255,
         .lvl = 75,
-        .species = SPECIES_BLASTOISE,
+        .species = SPECIES_SWAMPERT,
         .heldItem = ITEM_SITRUS_BERRY,
-        .moves = {MOVE_HYDRO_PUMP, MOVE_ICE_BEAM, MOVE_EARTHQUAKE, MOVE_RAIN_DANCE},
+        .moves = {MOVE_SURF, MOVE_ICE_BEAM, MOVE_EARTHQUAKE, MOVE_RAIN_DANCE},
     },
 };
 
