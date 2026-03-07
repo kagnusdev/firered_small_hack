@@ -263,7 +263,7 @@ static const u8 *const sFameCheckerFlavorTextPointers[] = {
 };
 
 static const u8 sFameCheckerArrayNpcGraphicsIds[] = {
-    // OAK
+    // Oak
     OBJ_EVENT_GFX_SIGN,
     OBJ_EVENT_GFX_PROF_OAK,
     OBJ_EVENT_GFX_WORKER_F,
