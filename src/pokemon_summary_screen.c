@@ -346,8 +346,8 @@ extern const u16 gSummaryScreen_StatusAilmentIcon_Pal[];
 extern const u32 gSummaryScreen_HpBar_Gfx[];
 extern const u32 gSummaryScreen_ExpBar_Gfx[];
 
-static const u8 sIVsPageName[] = _("POKéMON IVS");
-static const u8 sEVsPageName[] = _("POKéMON EVS");
+static const u8 sIVsPageName[] = _("Pokémon IVs");
+static const u8 sEVsPageName[] = _("Pokémon EVs");
 
 static const u8 * const sSkillsPageNames[] = {
     [PSS_SKILLS_PAGE_STATS] = gText_PokeSum_PageName_PokemonSkills,

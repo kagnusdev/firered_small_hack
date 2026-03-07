@@ -155,7 +155,7 @@ static const struct
 
 static const struct RoamerPair sRoamerPairs[] = {
     { SPECIES_ENTEI,   SPECIES_BULBASAUR  },
-    { SPECIES_SUICUNE, SPECIES_CHARMANDER },
+    { SPECIES_SUICUNE, SPECIES_TORCHIC },
     { SPECIES_RAIKOU,  SPECIES_SQUIRTLE   }
 };
 
