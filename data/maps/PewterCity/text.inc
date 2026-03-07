@@ -122,7 +122,7 @@ PewterCity_Text_OhPlayer::
 
 PewterCity_Text_AskedToDeliverThis::
     .string "I'm glad I caught up to you.\n"
-    .string "I'm PROF. OAK's AIDE.\p"
+    .string "I'm Prof. Oak's AIDE.\p"
     .string "I've been asked to deliver this,\n"
     .string "so here you go.$"
 

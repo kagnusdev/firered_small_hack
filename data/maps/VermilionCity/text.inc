@@ -120,9 +120,9 @@ VermilionCity_Text_Seagallop12Departing::
 VermilionCity_Text_Route2AideHasPackageForYou::
     .string "Oh, hello, {PLAYER}!\n"
     .string "How are you doing?\p"
-    .string "It's me, one of PROF. OAK's AIDES.\p"
+    .string "It's me, one of Prof. Oak's AIDES.\p"
     .string "Did you meet the other AIDE?\p"
-    .string "He had a package from PROF. OAK\n"
+    .string "He had a package from Prof. Oak\n"
     .string "for you, {PLAYER}.\p"
     .string "He said he'd look for you around\n"
     .string "ROUTE 2, {PLAYER}.\p"

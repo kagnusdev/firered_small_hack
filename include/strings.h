@@ -117,7 +117,7 @@ extern const u8 gFameCheckerText_ClearTextbox[];
 extern const u8 gFameCheckerText_MainScreenUI[]; // "{DPAD_ANY}PICK {DPAD_UPDOWN}SELECT {A_BUTTON}OK$"
 extern const u8 gFameCheckerText_PickScreenUI[]; // "{DPAD_ANY}PICK {DPAD_UPDOWN}SELECT {B_BUTTON}CANCEL$"
 extern const u8 gFameCheckerText_FlavorTextUI[]; // "{START_BUTTON}PICK {A_BUTTON}READ {B_BUTTON}CANCEL$"
-extern const u8 gFameCheckerOakName[]; // "OAK$"
+extern const u8 gFameCheckerOakName[]; // "Oak$"
 extern const u8 gFameCheckerDaisyName[]; // "DAISY$"
 extern const u8 gFameCheckerBillName[]; // "BILL$"
 extern const u8 gFameCheckerMrFujiName[]; // "FUJI$"

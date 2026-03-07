@@ -1,6 +1,6 @@
 gFameCheckerFlavorText_ProfOak0:: @ 0x81AD106
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}What does this person do?\p"
-	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}OAK POKéMON RESEARCH LAB$"
+	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Oak POKéMON RESEARCH LAB$"
 
 gFameCheckerFlavorText_ProfOak1:: @ 0x81AD145
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}What is this person like?\p"
@@ -10,19 +10,19 @@ gFameCheckerFlavorText_ProfOak1:: @ 0x81AD145
 
 gFameCheckerFlavorText_ProfOak2:: @ 0x81AD1BB
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}What is this person like?\p"
-	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}PROF. OAK may not look like much,\n"
+	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Prof. Oak may not look like much,\n"
 	.string "but he's the authority on POKéMON.\p"
 	.string "Many POKéMON TRAINERS hold him in\n"
 	.string "high regard.$"
 
 gFameCheckerFlavorText_ProfOak3:: @ 0x81AD258
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Family and friends?\p"
-	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}PROF. OAK reportedly lives with his\n"
+	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Prof. Oak reportedly lives with his\n"
 	.string "grandchildren, DAISY and {RIVAL}.$"
 
 gFameCheckerFlavorText_ProfOak4:: @ 0x81AD2B9
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Family and friends?\p"
-	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}I hear OAK's taken a lot of\n"
+	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}I hear Oak's taken a lot of\n"
 	.string "interest in you, child.\p"
 	.string "That old duff was once tough and\n"
 	.string "handsome.\p"
@@ -31,10 +31,10 @@ gFameCheckerFlavorText_ProfOak4:: @ 0x81AD2B9
 
 gFameCheckerFlavorText_ProfOak5:: @ 0x81AD377
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}What does this person do?\p"
-	.string "{FONT_MALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}PROF. OAK is going to have his own\n"
+	.string "{FONT_MALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Prof. Oak is going to have his own\n"
 	.string "radio show soon.\p"
 	.string "The program will be called PROF.\n"
-	.string "OAK'S POKéMON SEMINAR.$"
+	.string "Oak'S POKéMON SEMINAR.$"
 
 gFameCheckerFlavorText_Daisy0:: @ 0x81AD40C
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}What does this person do?\p"
@@ -57,7 +57,7 @@ gFameCheckerFlavorText_Daisy2:: @ 0x81AD516
 
 gFameCheckerFlavorText_Daisy3:: @ 0x81AD5A7
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Family and friends?\p"
-	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}PROF. OAK reportedly lives with his\n"
+	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Prof. Oak reportedly lives with his\n"
 	.string "grandchildren, DAISY and {RIVAL}.$"
 
 gFameCheckerFlavorText_Daisy4:: @ 0x81AD608
@@ -70,7 +70,7 @@ gFameCheckerFlavorText_Daisy4:: @ 0x81AD608
 gFameCheckerFlavorText_Daisy5:: @ 0x81AD69F
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}There's a rumor…\p"
 	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}The Spring POKéMON CONTEST's\n"
-	.string "Grand Champion is DAISY OAK of\l"
+	.string "Grand Champion is DAISY Oak of\l"
 	.string "PALLET TOWN!$"
 
 gFameCheckerFlavorText_Brock0:: @ 0x81AD705
@@ -432,12 +432,12 @@ gFameCheckerFlavorText_Agatha2:: @ 0x81AF2B7
 gFameCheckerFlavorText_Agatha3:: @ 0x81AF34E
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}There's a rumor…\p"
 	.string "{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}In her youth, AGATHA and PROF.\n"
-	.string "OAK were rivals who vied for\l"
+	.string "Oak were rivals who vied for\l"
 	.string "supremacy as TRAINERS.$"
 
 gFameCheckerFlavorText_Agatha4:: @ 0x81AF3BE
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Family and friends?\p"
-	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}I hear OAK's taken a lot of\n"
+	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}I hear Oak's taken a lot of\n"
 	.string "interest in you, child.\p"
 	.string "That old duff was once tough and\n"
 	.string "handsome.\p"
@@ -612,10 +612,10 @@ gFameCheckerFlavorText_Giovanni5:: @ 0x81B0106
 
 
 gFameCheckerPersonName_ProfOak:: @ 0x81B0188
-	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}PROF. OAK$"
+	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Prof. Oak$"
 
 gFameCheckerPersonQuote_ProfOak:: @ 0x81B0198
-	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}From: PROF. OAK\n"
+	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}From: Prof. Oak\n"
 	.string "To: {PLAYER}\p"
 	.string "{FONT_MALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Why do POKéMON compete and battle\n"
 	.string "so hard for you?\p"
@@ -747,7 +747,7 @@ gFameCheckerPersonQuote_Agatha:: @ 0x81B08FB
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}From: AGATHA\n"
 	.string "To: {PLAYER}\p"
 	.string "{FONT_FEMALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}When you grow older, don't you\n"
-	.string "dare go soft like that coot OAK!\p"
+	.string "dare go soft like that coot Oak!\p"
 	.string "Be like me and keep battling on!$"
 
 gFameCheckerPersonName_Lance:: @ 0x81B097F
@@ -1089,7 +1089,7 @@ gFameCheckerFlavorTextOriginObjectName_ProfOak0::
 	.string "SIGN$"
 
 gFameCheckerFlavorTextOriginObjectName_ProfOak1::
-	.string "PROF. OAK$"
+	.string "Prof. Oak$"
 
 gFameCheckerFlavorTextOriginObjectName_ProfOak2::
 	.string "AIDE$"
@@ -1450,7 +1450,7 @@ PokemonJournal_Text_SpecialFeatureAgatha::
 	.string "Special Feature:\n"
 	.string "ELITE FOUR's AGATHA!\p"
 	.string "In her youth, AGATHA and PROF.\n"
-	.string "OAK were rivals who vied for\l"
+	.string "Oak were rivals who vied for\l"
 	.string "supremacy as TRAINERS.$"
 
 PokemonJournal_Text_SpecialFeatureLance::
@@ -1463,9 +1463,9 @@ PokemonJournal_Text_SpecialFeatureLance::
 
 PokemonJournal_Text_SpecialFeatureProfOak::
 	.string "POKéMON JOURNAL\p"
-	.string "Special Feature: PROF. OAK,\n"
+	.string "Special Feature: Prof. Oak,\n"
 	.string "the POKéMON Researcher!\p"
-	.string "PROF. OAK reportedly lives with his\n"
+	.string "Prof. Oak reportedly lives with his\n"
 	.string "grandchildren DAISY and {RIVAL}.$"
 
 PokemonJournal_Text_SpecialFeatureDaisyOak::
@@ -1474,7 +1474,7 @@ PokemonJournal_Text_SpecialFeatureDaisyOak::
 	.string "POKéMON JOURNAL\n"
 	.string "CONTEST Special!\p"
 	.string "The Spring POKéMON CONTEST's\n"
-	.string "Grand Champion is DAISY OAK of\l"
+	.string "Grand Champion is DAISY Oak of\l"
 	.string "PALLET TOWN!$"
 
 PokemonJournal_Text_SpecialFeatureMrFuji::
