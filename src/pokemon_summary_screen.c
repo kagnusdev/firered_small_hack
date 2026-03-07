@@ -5075,26 +5075,32 @@ static void PokeSum_SeekToNextMon(u8 taskId, s8 direction)
 static s8 SeekToNextMonInSingleParty(s8 direction)
 {
     struct Pokemon * partyMons = sMonSummaryScreen->monList.mons;
-    s8 seekDelta = 0;
+    u8 seekIndex = sLastViewedMonIndex;
 
     if (sMonSummaryScreen->curPageIndex == 0)
     {
         if (direction == -1 && sLastViewedMonIndex == 0)
-            return -1;
+            return sMonSummaryScreen->lastIndex;
         else if (direction == 1 && sLastViewedMonIndex >= sMonSummaryScreen->lastIndex)
-            return -1;
+            return 0;
         else
             return sLastViewedMonIndex + direction;
     }
 
     while (TRUE)
     {
-        seekDelta += direction;
-        if (0 > sLastViewedMonIndex + seekDelta || sLastViewedMonIndex + seekDelta > sMonSummaryScreen->lastIndex)
+        if (seekIndex == 0 && direction < 0)
+            seekIndex = sMonSummaryScreen->lastIndex;
+        else if (seekIndex == sMonSummaryScreen->lastIndex && direction > 0)
+            seekIndex = 0;
+        else
+            seekIndex += direction;
+
+        if (seekIndex == sLastViewedMonIndex)
             return -1;
 
-        if (GetMonData(&partyMons[sLastViewedMonIndex + seekDelta], MON_DATA_IS_EGG) == 0)
-            return sLastViewedMonIndex + seekDelta;
+        if (GetMonData(&partyMons[seekIndex], MON_DATA_IS_EGG) == 0)
+            return seekIndex;
     }
 
     return -1;
