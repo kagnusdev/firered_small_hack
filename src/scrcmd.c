@@ -1631,8 +1631,8 @@ bool8 ScrCmd_bufferitemname(struct ScriptContext * ctx)
     return FALSE;
 }
 
-static const u8 sText_S[] = _("S");
-static const u8 sText_IES[] = _("IES");
+static const u8 sText_S[] = _("s");
+static const u8 sText_IES[] = _("ies");
 
 bool8 ScrCmd_bufferitemnameplural(struct ScriptContext * ctx)
 {
