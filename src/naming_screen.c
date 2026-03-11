@@ -154,7 +154,8 @@ struct NamingScreenData
     /*0x800*/  u8 tilemapBuffer3[0x800];
     /*0x1800*/ u8 textBuffer[0x10];
     /*0x1810*/ u8 tileBuffer[0x600];
-    /*0x1E10*/ u8 state;
+    /*0x1E10*/ u8 swapToUpper:1;
+    /*0x1E10*/ u8 state:7;
     /*0x1E11*/ u8 windows[WIN_COUNT];
     /*0x1E16*/ u16 inputCharBaseXPos;
     /*0x1E18*/ u16 bg1vOffset;
@@ -418,6 +419,7 @@ void DoNamingScreen(u8 templateNum, u8 *destBuffer, u16 monSpecies, u16 monGende
     else
     {
         sNamingScreen->templateNum = templateNum;
+        sNamingScreen->swapToUpper = FALSE;
         sNamingScreen->monSpecies = monSpecies;
         sNamingScreen->monGender = monGender;
         sNamingScreen->monPersonality = monPersonality;
@@ -790,8 +792,16 @@ static bool8 MainState_WaitPageSwap(void)
         onLastColumn = (cursorX == GetCurrentPageColumnCount());
 
         sNamingScreen->state = STATE_HANDLE_INPUT;
-        sNamingScreen->currentPage++;
-        sNamingScreen->currentPage %= KBPAGE_COUNT;
+        if (sNamingScreen->swapToUpper)
+        {
+            sNamingScreen->swapToUpper = FALSE;
+            sNamingScreen->currentPage = KBPAGE_LETTERS_UPPER;
+        }
+        else
+        {
+            sNamingScreen->currentPage++;
+            sNamingScreen->currentPage %= KBPAGE_COUNT;
+        }
 
         if (onLastColumn)
         {
@@ -1300,7 +1310,7 @@ static bool8 PageSwapSprite_SlideOff(struct Sprite *sprite)
         sprite->sState++;
         text->y2 = -4;
         text->invisible = TRUE;
-        SetPageSwapButtonGfx(PageToNextGfxId(((u8)sprite->sPage + 1) % KBPAGE_COUNT), text, button);
+        SetPageSwapButtonGfx(sNamingScreen->swapToUpper ? PAGE_SWAP_LOWER : PageToNextGfxId(((u8)sprite->sPage + 1) % KBPAGE_COUNT), text, button);
     }
     return FALSE;
 }
@@ -1499,6 +1509,9 @@ static bool8 KeyboardKeyHandler_Character(u8 input)
     if (input == INPUT_A_BUTTON)
     {
         bool8 textFull = AddTextCharacter();
+
+        if (sNamingScreen->currentPage == KBPAGE_LETTERS_UPPER && GetTextEntryPosition() == 1)
+            MainState_StartPageSwap();
 
         SquishCursor();
         if (textFull)
@@ -1821,6 +1834,13 @@ static void DeleteTextCharacter(void)
     // It incorrectly leaves the Back key 1 shade lighter than its default
     if (keyRole == KEY_ROLE_CHAR || keyRole == KEY_ROLE_BACKSPACE)
         TryStartButtonFlash(BUTTON_BACK, FALSE, TRUE);
+
+    if (sNamingScreen->currentPage == KBPAGE_LETTERS_LOWER && GetTextEntryPosition() == 0)
+    {
+        sNamingScreen->swapToUpper = TRUE;
+        DrawKeyboardPageOnDeck();
+        SwapKeyboardPage();
+    }
     PlaySE(SE_BALL);
 }
 
@@ -1981,8 +2001,8 @@ static void DrawKeyboardPageOnDeck(void)
         windowId = sNamingScreen->windows[WIN_KB_PAGE_2];
     }
 
-    DecompressToBgTilemapBuffer(bgId, sNextKeyboardPageTilemaps[sNamingScreen->currentPage]);
-    PrintKeyboardKeys(windowId, CurrentPageToNextKeyboardId());
+    DecompressToBgTilemapBuffer(bgId, sNamingScreen->swapToUpper ? gNamingScreenKeyboardUpper_Tilemap : sNextKeyboardPageTilemaps[sNamingScreen->currentPage]);
+    PrintKeyboardKeys(windowId, sNamingScreen->swapToUpper ? KEYBOARD_LETTERS_UPPER : CurrentPageToNextKeyboardId());
     CopyBgTilemapBufferToVram(bgId_copy);
 }
 
