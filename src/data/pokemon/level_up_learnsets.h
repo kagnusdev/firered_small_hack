@@ -3684,8 +3684,8 @@ static const u16 sSceptileLevelUpLearnset[] = {
 static const u16 sTorchicLevelUpLearnset[] = {
     LEVEL_UP_MOVE(1, MOVE_SCRATCH),
     LEVEL_UP_MOVE(1, MOVE_GROWL),
-    LEVEL_UP_MOVE(7, MOVE_FOCUS_ENERGY),
-    LEVEL_UP_MOVE(10, MOVE_EMBER),
+    LEVEL_UP_MOVE(7, MOVE_EMBER),
+    LEVEL_UP_MOVE(10, MOVE_FOCUS_ENERGY),
     LEVEL_UP_MOVE(16, MOVE_PECK),
     LEVEL_UP_MOVE(19, MOVE_SAND_ATTACK),
     LEVEL_UP_MOVE(25, MOVE_FIRE_SPIN),
@@ -3939,6 +3939,7 @@ static const u16 sLudicoloLevelUpLearnset[] = {
 
 static const u16 sSeedotLevelUpLearnset[] = {
     LEVEL_UP_MOVE(1, MOVE_BIDE),
+    LEVEL_UP_MOVE(1, MOVE_BULLET_SEED),
     LEVEL_UP_MOVE(3, MOVE_HARDEN),
     LEVEL_UP_MOVE(7, MOVE_GROWTH),
     LEVEL_UP_MOVE(13, MOVE_NATURE_POWER),
