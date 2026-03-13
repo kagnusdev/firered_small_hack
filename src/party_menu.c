@@ -404,6 +404,7 @@ static void CB2_UseEvolutionStone(void);
 static bool8 MonCanEvolve(void);
 static void CB2_ShowPokemonNicknameScreen(void);
 static void CB2_ReturnToPartyMenuFromNicknameScreen(void);
+static void Task_PrintBallRetrievedAfterText(u8 taskId);
 
 static EWRAM_DATA struct PartyMenuInternal *sPartyMenuInternal = NULL;
 EWRAM_DATA struct PartyMenu gPartyMenu = {0};
@@ -5065,6 +5066,60 @@ static void Task_TryLearningNextMoveAfterText(u8 taskId)
 {
     if (IsPartyMenuTextPrinterActive() != TRUE)
         Task_TryLearningNextMove(taskId);
+}
+
+static const u8 sText_MonBallWasChanged[] = _("{STR_VAR_1} was put in the {STR_VAR_2}.{PAUSE_UNTIL_PRESS}");
+
+#define tOldBall data[3]
+
+void ItemUseCB_PokeBallEtc(u8 taskId, TaskFunc func)
+{
+    struct Pokemon *mon = &gPlayerParty[gPartyMenu.slotId];
+    u32 currBall = GetMonData(mon, MON_DATA_POKEBALL, NULL);
+    u32 newBall = gSpecialVar_ItemId;
+
+    if (currBall == newBall)
+    {
+        DisplayPartyMenuMessage(gText_WontHaveEffect, FALSE);
+        ScheduleBgCopyTilemapToVram(2);
+        gTasks[taskId].func = Task_ReturnToChooseMonAfterText;
+    }
+    else
+    {
+        GetMonNickname(mon, gStringVar1);
+        CopyItemName(newBall, gStringVar2);
+        PlaySE(SE_SELECT);
+        gPartyMenuUseExitCallback = TRUE;
+        SetMonData(mon, MON_DATA_POKEBALL, &newBall);
+        StringExpandPlaceholders(gStringVar4, sText_MonBallWasChanged);
+        DisplayPartyMenuMessage(gStringVar4, TRUE);
+        ScheduleBgCopyTilemapToVram(2);
+        RemoveBagItem(newBall, 1);
+        if (AddBagItem(currBall, 1))
+        {
+            gTasks[taskId].tOldBall = (u16)currBall;
+            gTasks[taskId].func = Task_PrintBallRetrievedAfterText;
+        }
+        else
+        {
+            gTasks[taskId].func = func;
+        }
+    }
+}
+
+static const u8 sText_MonBallWasRetrieved[] = _("Put a {STR_VAR_1} in the bag.{PAUSE_UNTIL_PRESS}");
+
+static void Task_PrintBallRetrievedAfterText(u8 taskId)
+{
+    if (IsPartyMenuTextPrinterActive() != TRUE)
+    {
+        u32 currBall = (u16)gTasks[taskId].tOldBall;
+        CopyItemName(currBall, gStringVar1);
+        StringExpandPlaceholders(gStringVar4, sText_MonBallWasRetrieved);
+        DisplayPartyMenuMessage(gStringVar4, TRUE);
+        ScheduleBgCopyTilemapToVram(2);
+        gTasks[taskId].func = Task_ClosePartyMenuAfterText;
+    }
 }
 
 void ItemUseCB_RareCandy(u8 taskId, TaskFunc func)

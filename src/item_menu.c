@@ -218,10 +218,10 @@ static const u8 sContextMenuItems_Field[][4] = {
         ITEMMENUACTION_CANCEL,
         ITEMMENUACTION_DUMMY
     }, {
+        ITEMMENUACTION_USE,
         ITEMMENUACTION_GIVE,
         ITEMMENUACTION_TOSS,
         ITEMMENUACTION_CANCEL,
-        ITEMMENUACTION_DUMMY
     }
 };
 
@@ -1411,7 +1411,7 @@ static void OpenContextMenu(u8 taskId)
                 break;
             case OPEN_BAG_POKEBALLS:
                 sContextMenuItemsPtr = sContextMenuItems_Field[gBagMenuState.pocket];
-                sContextMenuNumItems = 3;
+                sContextMenuNumItems = 4;
                 break;
             }
         }
