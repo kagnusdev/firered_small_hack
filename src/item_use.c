@@ -442,6 +442,13 @@ void FieldUseFunc_SacredAsh(u8 taskId)
     SetUpItemUseCallback(taskId);
 }
 
+void FieldUseFunc_PokeBallEtc(u8 taskId)
+{
+    gItemUseCB = ItemUseCB_PokeBallEtc;
+    ItemMenu_SetExitCallback(CB2_ShowPartyMenuForItemUse);
+    ItemMenu_StartFadeToExitCallback(taskId);
+}
+
 void FieldUseFunc_TmCase(u8 taskId)
 {
     if (gTasks[taskId].data[3] == 0)
