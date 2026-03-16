@@ -5017,6 +5017,65 @@ u8 GetNature(struct Pokemon *mon)
     return GetMonData(mon, MON_DATA_PERSONALITY, NULL) % NUM_NATURES;
 }
 
+static void RewriteMonDataWithNewPersonality(struct BoxPokemon *boxMon, u32 newPersonality)
+{
+    struct PokemonSubstruct0 *substruct0 = NULL;
+    struct PokemonSubstruct1 *substruct1 = NULL;
+    struct PokemonSubstruct2 *substruct2 = NULL;
+    struct PokemonSubstruct3 *substruct3 = NULL;
+
+    struct PokemonSubstruct0 tmp0;
+    struct PokemonSubstruct1 tmp1;
+    struct PokemonSubstruct2 tmp2;
+    struct PokemonSubstruct3 tmp3;
+
+    substruct0 = &(GetSubstruct(boxMon, boxMon->personality, 0)->type0);
+    substruct1 = &(GetSubstruct(boxMon, boxMon->personality, 1)->type1);
+    substruct2 = &(GetSubstruct(boxMon, boxMon->personality, 2)->type2);
+    substruct3 = &(GetSubstruct(boxMon, boxMon->personality, 3)->type3);
+
+    DecryptBoxMon(boxMon);
+
+    tmp0 = *substruct0;
+    tmp1 = *substruct1;
+    tmp2 = *substruct2;
+    tmp3 = *substruct3;
+
+    boxMon->personality = newPersonality;
+
+    substruct0 = &(GetSubstruct(boxMon, boxMon->personality, 0)->type0);
+    substruct1 = &(GetSubstruct(boxMon, boxMon->personality, 1)->type1);
+    substruct2 = &(GetSubstruct(boxMon, boxMon->personality, 2)->type2);
+    substruct3 = &(GetSubstruct(boxMon, boxMon->personality, 3)->type3);
+
+    *substruct0 = tmp0;
+    *substruct1 = tmp1;
+    *substruct2 = tmp2;
+    *substruct3 = tmp3;
+
+    boxMon->checksum = CalculateBoxMonChecksum(boxMon);
+    EncryptBoxMon(boxMon);
+}
+
+bool32 SetNature(struct Pokemon *mon, u32 newNature)
+{
+    u32 personality = GetMonData3(mon, MON_DATA_PERSONALITY, NULL);
+    u32 diff;
+
+    if ((personality % NUM_NATURES) == newNature)
+        return TRUE;
+
+    if (newNature >= NUM_NATURES)
+        return FALSE;
+
+    diff = newNature - (personality % NUM_NATURES);
+
+    RewriteMonDataWithNewPersonality(&mon->box, personality + diff);
+
+    CalculateMonStats(mon);
+    return TRUE;
+}
+
 static u8 GetNatureFromPersonality(u32 personality)
 {
     return personality % NUM_NATURES;

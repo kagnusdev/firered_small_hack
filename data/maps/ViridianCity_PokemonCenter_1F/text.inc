@@ -16,3 +16,17 @@ ViridianCity_PokemonCenter_1F_Text_PokeCentersHealMons::
     .string "They make all POKéMON completely\n"
     .string "healthy.$"
 
+Text_WelcomeWantToChangeNature::
+    .string "Wanna change a Pokémon's nature?$"
+
+Text_ChangeMonNatureToWhat::
+    .string "Change {STR_VAR_1}'s nature\n"
+    .string "from {STR_VAR_2} to what?$"
+
+Text_MonChangedNature::
+    .string "Your {STR_VAR_1}'s nature\n"
+    .string "changed to {STR_VAR_2}$"
+
+Text_RefusedToChangeNature::
+    .string "OK, feel free to ask again\n"
+    .string "if you change your mind.$"
