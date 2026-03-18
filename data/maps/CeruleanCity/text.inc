@@ -176,7 +176,7 @@ CeruleanCity_Text_BikeShopSign::
     .string "BIKE SHOP$"
 
 CeruleanCity_Text_GymSign::
-    .string "CERULEAN CITY POKéMON GYM\n"
-    .string "LEADER: MISTY\l"
+    .string "Cerulean City Pokémon Gym\n"
+    .string "Leader: Misty\l"
     .string "The Tomboyish Mermaid!$"
 
