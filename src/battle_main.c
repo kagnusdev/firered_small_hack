@@ -1632,6 +1632,22 @@ static u8 CreateNPCTrainerParty(struct Pokemon *party, u16 trainerNum)
         }
 
         gBattleTypeFlags |= gTrainers[trainerNum].doubleBattle;
+        if (!gTrainers[trainerNum].doubleBattle)
+        {
+            DebugPrintf("Trying to override gBattleTypeFlags (%u)", (u32)GetTrainerBattleMode());
+            switch (GetTrainerBattleMode())
+            {
+            case TRAINER_BATTLE_DOUBLE:
+            case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE:
+            case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC:
+            case TRAINER_BATTLE_REMATCH_DOUBLE:
+            case TRAINER_BATTLE_EARLY_RIVAL_DOUBLE:
+                DebugPrintf("Overriding gBattleTypeFlags, before: %u", gBattleTypeFlags);
+                gBattleTypeFlags |= BATTLE_TYPE_DOUBLE;
+                DebugPrintf("Overriding gBattleTypeFlags, after: %u", gBattleTypeFlags);
+                break;
+            }
+        }
     }
 
     return gTrainers[trainerNum].partySize;
