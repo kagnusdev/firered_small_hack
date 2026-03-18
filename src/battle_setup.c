@@ -740,6 +740,50 @@ static inline void SetPtr(const void *ptr, const void *value)
     *(const void **)(ptr) = value;
 }
 
+static void TryToMakeBattleModeDouble(void)
+{
+    u32 opponentId = gTrainerBattleOpponent_A;
+
+    DebugPrintf("Pre override: opponentId=%u sTrainerBattleMode=%u", opponentId, sTrainerBattleMode);
+    if (sTrainerBattleMode == TRAINER_BATTLE_REMATCH)
+    {
+        opponentId = GetRematchTrainerId(opponentId);
+    }
+
+    if ((gTrainers[opponentId].partySize < 2) || (GetMonsStateToDoubles() != PLAYER_HAS_TWO_USABLE_MONS))
+    {
+        DebugPrintf("Guard fail: opponentId=%u sTrainerBattleMode=%u", opponentId, sTrainerBattleMode);
+        DebugPrintf("Guard fail: cond1=%u, cond2=%u", (gTrainers[opponentId].partySize < 2), (GetMonsStateToDoubles() != PLAYER_HAS_TWO_USABLE_MONS));
+        return;
+    }
+
+    switch(sTrainerBattleMode)
+    {
+    case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE:
+    case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC:
+    case TRAINER_BATTLE_REMATCH_DOUBLE:
+        // already a double battle
+        break;
+    case TRAINER_BATTLE_CONTINUE_SCRIPT:
+        sTrainerBattleMode = TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE;
+        break;
+    case TRAINER_BATTLE_CONTINUE_SCRIPT_NO_MUSIC:
+        sTrainerBattleMode = TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC;
+        break;
+    case TRAINER_BATTLE_REMATCH:
+        sTrainerBattleMode = TRAINER_BATTLE_REMATCH_DOUBLE;
+        break;
+    case TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT:
+    case TRAINER_BATTLE_SINGLE:
+        sTrainerBattleMode = TRAINER_BATTLE_DOUBLE;
+        break;
+    case TRAINER_BATTLE_EARLY_RIVAL:
+        sTrainerBattleMode = TRAINER_BATTLE_EARLY_RIVAL_DOUBLE;
+        break;
+    }
+    DebugPrintf("Post override: opponentId=%u sTrainerBattleMode=%u", opponentId, sTrainerBattleMode);
+}
+
 static void TrainerBattleLoadArgs(const struct TrainerBattleParameter *specs, const u8 *data)
 {
     while (1)
@@ -769,6 +813,7 @@ static void TrainerBattleLoadArgs(const struct TrainerBattleParameter *specs, co
             break;
         case TRAINER_PARAM_LOAD_SCRIPT_RET_ADDR:
             SetPtr(specs->varPtr, data);
+            TryToMakeBattleModeDouble();
             return;
         }
         ++specs;
@@ -781,6 +826,21 @@ static void SetMapVarsToTrainer(void)
     {
         gSpecialVar_LastTalked = sTrainerObjectEventLocalId;
         gSelectedObjectEvent = GetObjectEventIdByLocalIdAndMap(sTrainerObjectEventLocalId, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+    }
+}
+
+static const u8 *GetOverridenEventScriptForAutoDouble(const u8 *original)
+{
+    switch (sTrainerBattleMode)
+    {
+    case TRAINER_BATTLE_DOUBLE:
+    case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE:
+    case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC:
+        return EventScript_TryDoDoubleTrainerBattle;
+    case TRAINER_BATTLE_REMATCH_DOUBLE:
+        return EventScript_TryDoDoubleRematchBattle;
+    default:
+        return original;
     }
 }
 
@@ -801,7 +861,7 @@ const u8 *BattleSetup_ConfigureTrainerBattle(const u8 *data)
     case TRAINER_BATTLE_CONTINUE_SCRIPT_NO_MUSIC:
         TrainerBattleLoadArgs(sContinueScriptBattleParams, data);
         SetMapVarsToTrainer();
-        return EventScript_TryDoNormalTrainerBattle;
+        return GetOverridenEventScriptForAutoDouble(EventScript_TryDoNormalTrainerBattle);
     case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE:
     case TRAINER_BATTLE_CONTINUE_SCRIPT_DOUBLE_NO_MUSIC:
         TrainerBattleLoadArgs(sContinueScriptDoubleBattleParams, data);
@@ -818,14 +878,14 @@ const u8 *BattleSetup_ConfigureTrainerBattle(const u8 *data)
         TrainerBattleLoadArgs(sOrdinaryBattleParams, data);
         SetMapVarsToTrainer();
         gTrainerBattleOpponent_A = GetRematchTrainerId(gTrainerBattleOpponent_A);
-        return EventScript_TryDoRematchBattle;
+        return GetOverridenEventScriptForAutoDouble(EventScript_TryDoRematchBattle);
     case TRAINER_BATTLE_EARLY_RIVAL:
         TrainerBattleLoadArgs(sEarlyRivalBattleParams, data);
         return EventScript_DoNoIntroTrainerBattle;
     default:
         TrainerBattleLoadArgs(sOrdinaryBattleParams, data);
         SetMapVarsToTrainer();
-        return EventScript_TryDoNormalTrainerBattle;
+        return GetOverridenEventScriptForAutoDouble(EventScript_TryDoNormalTrainerBattle);
     }
 }
 
