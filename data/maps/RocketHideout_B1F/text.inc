@@ -11,7 +11,7 @@ RocketHideout_B1F_Text_Grunt1PostBattle::
     .string "ROCKET, aren't you?$"
 
 RocketHideout_B1F_Text_Grunt2Intro::
-    .string "You broke into TEAM ROCKET's\n"
+    .string "You broke into Team Rocket's\n"
     .string "operation? What nerve!$"
 
 RocketHideout_B1F_Text_Grunt2Defeat::
@@ -39,7 +39,7 @@ RocketHideout_B1F_Text_Grunt4Defeat::
 
 RocketHideout_B1F_Text_Grunt4PostBattle::
     .string "Okay, I'll talk…\n"
-    .string "Take the elevator to see my BOSS.$"
+    .string "Take the elevator to see my Boss.$"
 
 RocketHideout_B1F_Text_Grunt5Intro::
     .string "Are you lost, you little mouse?$"

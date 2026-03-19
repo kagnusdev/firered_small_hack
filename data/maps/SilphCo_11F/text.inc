@@ -57,9 +57,9 @@ SilphCo_11F_Text_GiovanniDefeat::
 SilphCo_11F_Text_GiovanniPostBattle::
     .string "Blast it all!\n"
     .string "You ruined our plans for SILPH!\p"
-    .string "But, TEAM ROCKET will never fall!\p"
+    .string "But, Team Rocket will never fall!\p"
     .string "{PLAYER}! Never forget that all\n"
-    .string "POKéMON exist for TEAM ROCKET!\p"
+    .string "POKéMON exist for Team Rocket!\p"
     .string "I must go, but I shall return!$"
 
 SilphCo_11F_Text_Grunt2Intro::
@@ -71,11 +71,11 @@ SilphCo_11F_Text_Grunt2Defeat::
     .string "Please!$"
 
 SilphCo_11F_Text_Grunt2PostBattle::
-    .string "So, you want to see my BOSS?$"
+    .string "So, you want to see my Boss?$"
 
 SilphCo_11F_Text_Grunt1Intro::
     .string "Halt! Do you have an appointment\n"
-    .string "with my BOSS?$"
+    .string "with my Boss?$"
 
 SilphCo_11F_Text_Grunt1Defeat::
     .string "Gaah!\n"
@@ -83,7 +83,7 @@ SilphCo_11F_Text_Grunt1Defeat::
 
 SilphCo_11F_Text_Grunt1PostBattle::
     .string "Watch your step…\n"
-    .string "My BOSS likes his POKéMON tough!$"
+    .string "My Boss likes his POKéMON tough!$"
 
 SilphCo_11F_Text_MonitorHasMonsOnIt::
     .string "The monitor has POKéMON on it!$"

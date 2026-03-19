@@ -6,7 +6,7 @@ Text_MonSentToBoxInSomeonesPC::
 
 Text_MonSentToBoxInBillsPC::
     .string "{STR_VAR_2} was transferred to\n"
-    .string "BILL'S PC.\p"
+    .string "Bill's PC.\p"
     .string "It was placed in \n"
     .string "BOX “{STR_VAR_1}.”$"
 
@@ -18,7 +18,7 @@ Text_MonSentToBoxSomeonesBoxFull::
 
 Text_MonSentToBoxBillsBoxFull::
     .string "BOX “{STR_VAR_3}” on\n"
-    .string "BILL'S PC was full.\p"
+    .string "Bill's PC was full.\p"
     .string "{STR_VAR_2} was transferred to\n"
     .string "BOX “{STR_VAR_1}.”$"
 

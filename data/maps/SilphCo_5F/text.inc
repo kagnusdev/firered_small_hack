@@ -1,10 +1,10 @@
 SilphCo_5F_Text_RocketsInUproarAboutIntruder::
-    .string "TEAM ROCKET is in an uproar over\n"
+    .string "Team Rocket is in an uproar over\n"
     .string "some intruder.\p"
     .string "That's you, right?$"
 
 SilphCo_5F_Text_YoureOurHeroThankYou::
-    .string "TEAM ROCKET took off!\n"
+    .string "Team Rocket took off!\n"
     .string "You're our hero! Thank you!$"
 
 SilphCo_5F_Text_Grunt1Intro::
@@ -16,7 +16,7 @@ SilphCo_5F_Text_Grunt1Defeat::
 
 SilphCo_5F_Text_Grunt1PostBattle::
     .string "It's not smart to pick a fight with\n"
-    .string "TEAM ROCKET!$"
+    .string "Team Rocket!$"
 
 SilphCo_5F_Text_BeauIntro::
     .string "We study POKé BALL technology on\n"
@@ -40,10 +40,10 @@ SilphCo_5F_Text_DaltonDefeat::
 
 SilphCo_5F_Text_DaltonPostBattle::
     .string "You're only on 5F.\n"
-    .string "It's a long way to my BOSS!$"
+    .string "It's a long way to my Boss!$"
 
 SilphCo_5F_Text_Grunt2Intro::
-    .string "Show TEAM ROCKET a little respect!$"
+    .string "Show Team Rocket a little respect!$"
 
 SilphCo_5F_Text_Grunt2Defeat::
     .string "Cough…\n"
@@ -75,7 +75,7 @@ SilphCo_5F_Text_FloorSign::
 SilphCo_5F_Text_RocketBossLookingForStrongMons::
     .string "Those thugs that took over our\n"
     .string "building…\p"
-    .string "Their BOSS said he was looking for\n"
+    .string "Their Boss said he was looking for\n"
     .string "strong POKéMON.\p"
     .string "I hope our PRESIDENT managed to\n"
     .string "avoid trouble…$"
