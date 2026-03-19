@@ -77,7 +77,7 @@ PewterCity_Gym_Text_LiamDefeat::
 
 PewterCity_Gym_Text_LiamPostBattle::
     .string "You're pretty hot.\n"
-    .string "…But not as hot as BROCK!$"
+    .string "…But not as hot as Brock!$"
 
 PewterCity_Gym_Text_LetMeTakeYouToTheTop::
     .string "Hiya!\n"

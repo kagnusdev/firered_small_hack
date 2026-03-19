@@ -12,7 +12,7 @@ PokemonTower_7F_Text_Grunt2Intro::
     .string "This old guy marched right up to\n"
     .string "our HIDEOUT.\p"
     .string "Then, he starts ranting about how\n"
-    .string "TEAM ROCKET's abusing POKéMON.\p"
+    .string "Team Rocket's abusing POKéMON.\p"
     .string "So, we're just talking it over as\n"
     .string "adults.$"
 
@@ -35,7 +35,7 @@ PokemonTower_7F_Text_Grunt3PostBattle::
     .string "You're not getting away with this!$"
 
 PokemonTower_7F_Text_MrFujiThankYouFollowMe::
-    .string "MR. FUJI: Heh?\n"
+    .string "Mr. Fuji: Heh?\n"
     .string "You came to save me?\p"
     .string "Thank you. But, I came here of my\n"
     .string "own free will.\p"

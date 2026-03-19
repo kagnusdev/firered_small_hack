@@ -26,7 +26,7 @@ CinnabarIsland_Gym_Text_ExplainVolcanoBadge::
 
 CinnabarIsland_Gym_Text_ReceivedTM38FromBlaine::
     .string "{PLAYER} received TM38\n"
-    .string "from BLAINE.$"
+    .string "from Blaine.$"
 
 CinnabarIsland_Gym_Text_BlainePostBattle::
     .string "TM38 contains Fire Blast.\n"

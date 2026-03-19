@@ -4,7 +4,7 @@ CeladonCity_Gym_Text_ErikaIntro::
     .string "It's so pleasant…\p"
     .string "…Oh, dear…\n"
     .string "I must have dozed off. Welcome.\p"
-    .string "My name is ERIKA.\n"
+    .string "My name is Erika.\n"
     .string "I am the Leader of Celadon Gym.\p"
     .string "I am a student of the art of\n"
     .string "flower arranging.\p"
@@ -81,7 +81,7 @@ CeladonCity_Gym_Text_TinaDefeat::
     .string "You're an eye-opener!$"
 
 CeladonCity_Gym_Text_TinaPostBattle::
-    .string "Oh, you were looking at ERIKA…\n"
+    .string "Oh, you were looking at Erika…\n"
     .string "You weren't looking at me…$"
 
 CeladonCity_Gym_Text_TamiaIntro::

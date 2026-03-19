@@ -40,7 +40,7 @@ ViridianCity_School_Text_NotebookFourthPage::
     .string "It is to defeat the top eight\n"
     .string "POKéMON GYM LEADERS.\p"
     .string "Do so to earn the right to face…\p"
-    .string "The ELITE FOUR of the POKéMON\n"
+    .string "The Elite Four of the POKéMON\n"
     .string "LEAGUE!$"
 
 ViridianCity_School_Text_TurnThePage::

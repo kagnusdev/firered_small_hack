@@ -500,7 +500,7 @@ gFameCheckerFlavorText_Bill0:: @ 0x81AF83E
 
 gFameCheckerFlavorText_Bill1:: @ 0x81AF8CA
 	.string "{COLOR BLUE}{SHADOW LIGHT_BLUE}Favorite kind of Pokémon?\p"
-	.string "{FONT_MALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}BILL has lots of Pokémon!\n"
+	.string "{FONT_MALE}{COLOR DARK_GRAY}{SHADOW LIGHT_GRAY}Bill has lots of Pokémon!\n"
 	.string "He collects rare ones, too!$"
 
 gFameCheckerFlavorText_Bill2:: @ 0x81AF929
@@ -1377,7 +1377,7 @@ PokemonJournal_Text_SpecialFeatureBrock::
 	.string "Pokémon Journal\p"
 	.string "Special Feature: Pewter Gym\n"
 	.string "Leader Brock!\p"
-	.string "BROCK rarely laughs, but is said to\n"
+	.string "Brock rarely laughs, but is said to\n"
 	.string "be unable to stop if he starts.$"
 
 PokemonJournal_Text_SpecialFeatureMisty::

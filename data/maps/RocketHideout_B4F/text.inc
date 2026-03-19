@@ -1,11 +1,11 @@
 RocketHideout_B4F_Text_GiovanniIntro::
     .string "So! I must say, I am impressed you\n"
     .string "got here.\p"
-    .string "TEAM ROCKET captures POKéMON from\n"
+    .string "Team Rocket captures POKéMON from\n"
     .string "around the world.\p"
     .string "They're important tools for keeping\n"
     .string "our criminal enterprise going.\p"
-    .string "I am the leader, GIOVANNI!\p"
+    .string "I am the leader, Giovanni!\p"
     .string "For your insolence, you will feel a\n"
     .string "world of pain!$"
 
@@ -40,7 +40,7 @@ RocketHideout_B4F_Text_Grunt3Defeat::
     .string "Ayaya!$"
 
 RocketHideout_B4F_Text_Grunt3PostBattle::
-    .string "BOSS!\n"
+    .string "Boss!\n"
     .string "I'm sorry I failed you!$"
 
 RocketHideout_B4F_Text_Grunt1Intro::

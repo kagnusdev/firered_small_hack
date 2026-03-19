@@ -100,15 +100,15 @@ SurfPichu_Slot5:
 sText_MysteryGiftEgg:
 	.string "Thank you for using the MYSTERY\n"
 	.string "GIFT System.\p"
-	.string "From the POKéMON CENTER we\n"
-	.string "have a gift - a POKéMON EGG!\p"
+	.string "From the Pokémon CENTER we\n"
+	.string "have a gift - a Pokémon EGG!\p"
 	.string "Please raise it with love and\n"
 	.string "kindness.$"
 
 sText_FullParty:
 	.string "Oh, your party appears to be full.\p"
 	.string "Please come see me after storing\n"
-	.string "a POKéMON on a PC.$"
+	.string "a Pokémon on a PC.$"
 
 MysteryEventScript_VisitingTrainer::
 	setvaddress MysteryEventScript_VisitingTrainer
@@ -136,7 +136,7 @@ sText_MysteryGiftVisitingTrainer:
 	.string "GIFT System.\p"
 	.string "By holding this WONDER CARD, you\n"
 	.string "may take part in a survey at a\l"
-	.string "POKéMON MART.\p"
+	.string "Pokémon MART.\p"
 	.string "Use these surveys to invite\n"
 	.string "TRAINERS to the SEVII ISLANDS.\p"
 	.string "…Let me give you a secret\n"
@@ -242,24 +242,24 @@ AuroraTicket_Obtained:
 	end
 
 sText_AuroraTicket1:
-	.string "Thank you for using the MYSTERY\n"
-	.string "GIFT System.\p"
+	.string "Thank you for using the Mystery\n"
+	.string "Gift System.\p"
 	.string "You must be {PLAYER}.\n"
 	.string "There is a ticket here for you.$"
 
 sText_AuroraTicket2:
 	.string "It appears to be for use at the\n"
-	.string "VERMILION CITY port.\p"
+	.string "Vermilion City port.\p"
 	.string "Why not give it a try and see what\n"
 	.string "it is about?$"
 
 sText_AuroraTicketGot:
-	.string "Thank you for using the MYSTERY\n"
-	.string "GIFT System.$"
+	.string "Thank you for using the Mystery\n"
+	.string "Gift System.$"
 
 sText_AuroraTicketNoPlace:
-	.string "Oh, I'm sorry, {PLAYER}. Your BAG's\n"
-	.string "KEY ITEMS POCKET is full.\p"
+	.string "Oh, I'm sorry, {PLAYER}. Your bag's\n"
+	.string "Key Items pocket is full.\p"
 	.string "Please store something on your PC,\n"
 	.string "then come back for this.$"
 
@@ -301,24 +301,24 @@ MysticTicket_Obtained:
 	end
 
 sText_MysticTicket2:
-	.string "Thank you for using the MYSTERY\n"
-	.string "GIFT System.\p"
+	.string "Thank you for using the Mystery\n"
+	.string "Gift System.\p"
 	.string "You must be {PLAYER}.\n"
 	.string "There is a ticket here for you.$"
 
 sText_MysticTicket1:
 	.string "It appears to be for use at the\n"
-	.string "VERMILION CITY port.\p"
+	.string "Vermilion City port.\p"
 	.string "Why not give it a try and see what\n"
 	.string "it is about?$"
 
 sText_MysticTicketGot:
-	.string "Thank you for using the MYSTERY\n"
-	.string "GIFT System.$"
+	.string "Thank you for using the Mystery\n"
+	.string "Gift System.$"
 
 sText_MysticTicketNoPlace:
-	.string "Oh, I'm sorry, {PLAYER}. Your BAG's\n"
-	.string "KEY ITEMS POCKET is full.\p"
+	.string "Oh, I'm sorry, {PLAYER}. Your bag's\n"
+	.string "Key Items pocket is full.\p"
 	.string "Please store something on your PC,\n"
 	.string "then come back for this.$"
 
@@ -337,11 +337,11 @@ MysteryEventScript_AlteringCave_:
 	end
 
 sText_MysteryGiftAlteringCave:
-	.string "Thank you for using the MYSTERY\n"
-	.string "GIFT System.\p"
+	.string "Thank you for using the Mystery\n"
+	.string "Gift System.\p"
 	.string "Recently, there have been rumors\n"
-	.string "of rare POKéMON appearances.\p"
-	.string "The rumors are about ALTERING\n"
-	.string "CAVE on OUTCAST ISLAND.\p"
+	.string "of rare Pokémon appearances.\p"
+	.string "The rumors are about Altering\n"
+	.string "Cave on Outcast Island.\p"
 	.string "Why not visit there and check if\n"
 	.string "the rumors are indeed true?$"

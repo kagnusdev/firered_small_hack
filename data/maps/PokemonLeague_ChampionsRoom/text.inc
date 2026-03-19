@@ -80,7 +80,7 @@ PokemonLeague_ChampionsRoom_Text_OakImDisappointedRival::
     .string "Oak: {RIVAL}…\n"
     .string "I'm disappointed in you.\p"
     .string "I came when I heard you'd beaten\n"
-    .string "the ELITE FOUR.\p"
+    .string "the Elite Four.\p"
     .string "But, when I got here, you had\n"
     .string "already lost!\p"
     .string "{RIVAL}, do you understand why\n"
