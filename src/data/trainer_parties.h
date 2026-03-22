@@ -631,12 +631,12 @@ static const struct TrainerMonNoItemDefaultMoves sParty_LassAnn[] = {
     {
         .iv = 0,
         .lvl = 18,
-        .species = SPECIES_PIDGEY,
+        .species = SPECIES_TAILLOW,
     },
     {
         .iv = 0,
         .lvl = 18,
-        .species = SPECIES_NIDORAN_F,
+        .species = SPECIES_TEDDIURSA,
     },
 };
 
