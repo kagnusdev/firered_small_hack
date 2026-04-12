@@ -1134,6 +1134,7 @@ static void OpponentHandleDrawTrainerPic(void)
         trainerPicId = gTrainers[gTrainerBattleOpponent_A].trainerPic;
     DecompressTrainerFrontPic(trainerPicId, gActiveBattler);
     SetMultiuseSpriteTemplateToTrainerBack(trainerPicId, GetBattlerPosition(gActiveBattler));
+    DebugPrintf("gMultiuseSpriteTemplate.tileTag = %x", gMultiuseSpriteTemplate.tileTag);
     gBattlerSpriteIds[gActiveBattler] = CreateSprite(&gMultiuseSpriteTemplate,
                                                      176,
                                                      (8 - gTrainerFrontPicCoords[trainerPicId].size) * 4 + 40,

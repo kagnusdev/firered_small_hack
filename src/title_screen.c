@@ -33,6 +33,9 @@ enum TitleScreenScene
 #define TITLE_SPECIES SPECIES_VENUSAUR
 #endif
 
+#include "trainer_pokemon_sprites.h"
+#include "data.h"
+
 static EWRAM_DATA u8 sTitleScreenTimerTaskId = 0;
 
 static void ResetGpuRegs(void);
@@ -64,6 +67,11 @@ static void Task_FlameSpawner(u8 taskId);
 static void SpriteCallback_TitleScreenLeaf(struct Sprite *sprite);
 static void Task_LeafSpawner(u8 taskId);
 #endif
+static void StartMonListScrolling(void);
+static void PauseMonListScrolling(void);
+static void StopMonListScrolling(void);
+static u32 MonListScrollingCurrentSpecies(void);
+static void Task_MonListScroller(u8 taskId);
 static void TitleScreen_srand(u8 taskId, u8 field, u16 seed);
 static u16 TitleScreen_rand(u8 taskId, u8 field);
 static u32 CreateBlankSprite(void);
@@ -339,6 +347,34 @@ static const u32 *const sUnused_Tilemaps[] = {
     sUnused_Tilemap6,
 };
 
+static const u16 sTitleMons[] = {
+#if defined(FIRERED)
+    SPECIES_CHARMANDER,
+    SPECIES_SQUIRTLE,
+    SPECIES_BULBASAUR,
+    SPECIES_WEEDLE,
+    SPECIES_NIDORAN_M,
+    SPECIES_SCYTHER,
+#elif defined(LEAFGREEN)
+    SPECIES_BULBASAUR,
+    SPECIES_CHARMANDER,
+    SPECIES_SQUIRTLE,
+    SPECIES_CATERPIE,
+    SPECIES_NIDORAN_F,
+    SPECIES_PINSIR,
+#endif
+    SPECIES_PIKACHU,
+    SPECIES_CLEFAIRY,
+    SPECIES_RHYDON,
+    SPECIES_ABRA,
+    SPECIES_GASTLY,
+    SPECIES_DITTO,
+    SPECIES_PIDGEOTTO,
+    SPECIES_ONIX,
+    SPECIES_PONYTA,
+    SPECIES_MAGIKARP
+};
+
 void CB2_InitTitleScreen(void)
 {
     switch (gMain.state)
@@ -367,9 +403,11 @@ void CB2_InitTitleScreen(void)
         LoadPalette(gGraphics_TitleScreen_GameTitleLogoPals, BG_PLTT_ID(0), 13 * PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(0, gGraphics_TitleScreen_GameTitleLogoMap, 0, 0, 1);
+#if !defined(FIRERED) && !defined(LEAFGREEN)
         LoadPalette(gGraphics_TitleScreen_BoxArtMonPals, BG_PLTT_ID(13), PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(1, gGraphics_TitleScreen_BoxArtMonTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(1, gGraphics_TitleScreen_BoxArtMonMap, 0, 0, 1);
+#endif
         LoadPalette(gGraphics_TitleScreen_BackgroundPals, BG_PLTT_ID(15), PLTT_SIZE_4BPP);
         DecompressAndCopyTileDataToVram(2, gGraphics_TitleScreen_CopyrightPressStartTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(2, gGraphics_TitleScreen_CopyrightPressStartMap, 0, 0, 1);
@@ -377,6 +415,7 @@ void CB2_InitTitleScreen(void)
         DecompressAndCopyTileDataToVram(3, sBorderBgTiles, 0, 0, 0);
         DecompressAndCopyTileDataToVram(3, sBorderBgMap, 0, 0, 1);
         LoadSpriteGfxAndPals();
+        CreateTask(Task_MonListScroller, 3);
         break;
     case 2:
         if (!FreeTempTileDataBuffersIfPossible())
@@ -622,6 +661,7 @@ static void SetTitleScreenScene_Run(s16 *data)
 #elif defined(LEAFGREEN)
         CreateTask(Task_LeafSpawner, 5);
 #endif
+        StartMonListScrolling();
         SetGpuRegsForTitleScreenRun();
         tSlashSpriteId = CreateSlashSprite();
         HelpSystem_Enable();
@@ -648,10 +688,12 @@ static void SetTitleScreenScene_Run(s16 *data)
         {
             SetTitleScreenScene(data, TITLESCREENSCENE_CRY);
         }
+#if !defined(FIRERED) && !defined(LEAFGREEN)
         else if (!FuncIsActiveTask(Task_TitleScreenTimer))
         {
             SetTitleScreenScene(data, TITLESCREENSCENE_RESTART);
         }
+#endif
         break;
     }
 }
@@ -712,7 +754,8 @@ static void SetTitleScreenScene_Cry(s16 *data)
     case 0:
         if (!gPaletteFade.active)
         {
-            PlayCry_Normal(TITLE_SPECIES, 0);
+            PlayCry_Normal(MonListScrollingCurrentSpecies(), 0);
+            PauseMonListScrolling();
             DeactivateSlashSprite(tSlashSpriteId);
             data[2] = 0;
             tState++;
@@ -723,6 +766,7 @@ static void SetTitleScreenScene_Cry(s16 *data)
             data[2]++;
         else if (!IsSlashSpriteDeactivated(tSlashSpriteId))
         {
+            StopMonListScrolling();
             BeginNormalPaletteFade((PALETTES_ALL & ~(1 << 0x1C) & ~(1 << 0x1D) & ~(1 << 0x1E) & ~(1 << 0x1F)), 0, 0, 16, RGB_WHITE);
             SignalEndTitleScreenPaletteSomethingTask();
             FadeOutBGM(4);
@@ -1203,6 +1247,292 @@ static void Task_LeafSpawner(u8 taskId)
 #undef tData3And4
 
 #endif //FRLG
+
+static const u8 sTrainerPicByPlayerGender[] =
+{
+    [MALE]   = TRAINER_PIC_RED, 
+    [FEMALE] = TRAINER_PIC_LEAF
+};
+
+static const struct OamData sTrainerSpriteOam =
+{
+    .objMode = ST_OAM_OBJ_NORMAL,
+    .bpp = ST_OAM_4BPP,
+    .shape = SPRITE_SHAPE(64x64),
+    .size = SPRITE_SIZE(64x64),
+    .tileNum = 0,
+    .priority = 0,
+    .paletteNum = 0,
+};
+
+static const struct SpriteTemplate sTrainerPicTemplate =
+{
+    .tileTag = TAG_NONE,
+    .paletteTag = 0,
+    .oam = &sTrainerSpriteOam,
+    .anims = NULL, 
+    .images = NULL,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCallbackDummy,
+};
+
+#if defined(FIRERED)
+# define DEFAULT_TRAINER_GENDER     MALE
+#elif defined(LEAFGREEN)
+# define DEFAULT_TRAINER_GENDER     FEMALE
+#endif
+
+static u32 CreateTrainerSpriteOnTS(void)
+{
+    u32 trainerGender = DEFAULT_TRAINER_GENDER;
+    return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, 152 + 32, 64 + 32, 6, TAG_NONE);
+}
+
+
+enum
+{
+    TS_INITIAL_MON,
+    TS_NEXT_MON,
+    TS_NEXT_MON_SHINY
+};
+
+#define INITIAL_MON_X   144
+
+#define sState       data[0]
+#define sTimer       data[1]
+#define sDeactivate  data[2]
+
+static void SpriteCallback_MoveMonOut(struct Sprite *sprite)
+{
+    switch (sprite->sState)
+    {
+    case 0:
+        sprite->sTimer--;
+        if (sprite->sTimer == 0)
+        {
+            sprite->x -= 8;
+            if (sprite->x >= -104)
+            {
+                sprite->sTimer = 4;
+            }
+            else
+            {
+                sprite->sState = 1;
+            }
+        }
+        break;
+    case 1:
+        sprite->sDeactivate = TRUE;
+        sprite->sState++;
+        break;
+    case 2:
+    default:
+        break;
+    }
+}
+
+static void SpriteCallback_MoveMonIn(struct Sprite *sprite)
+{
+    switch(sprite->sState)
+    {
+    case 0:
+        sprite->sTimer--;
+        if (sprite->sTimer == 0)
+        {
+            sprite->x -= 8;
+            if (sprite->x > INITIAL_MON_X)
+            {
+                sprite->sTimer = 4;
+            }
+            else
+            {
+                sprite->x = INITIAL_MON_X;
+                sprite->sState = 1;
+            }
+        }
+        break;
+    }
+}
+
+static u16 CreateMonSprite(u32 species, u32 mode)
+{
+    s16 x = DISPLAY_WIDTH + 32;
+    s16 y = 96;
+    u32 otId = SHINY_ODDS;
+    u32 personality = 0;//HIHALF(-1);
+    u32 ret;
+
+    if (mode == TS_INITIAL_MON)
+    {
+        x = INITIAL_MON_X;
+    }
+    else if (mode == TS_NEXT_MON_SHINY)
+    {
+        otId = personality = 0;
+    }
+    y += gMonFrontPicCoords[species].y_offset;
+    y -= gEnemyMonElevation[species];
+
+    ret = CreateMonPicSprite(species, otId, personality, TRUE, x, y, 12, TAG_NONE, TRUE);
+
+    if (ret != MAX_SPRITES)
+    {
+        gSprites[ret].subpriority = 1;
+    }
+
+    return ret;
+}
+
+#define tState          data[0]
+#define tTimer          data[1]
+#define tTrainerSprite  data[2]
+#define tCurrentSpecies data[3]
+#define tMonSprite      data[4]
+#define tStarted        data[5]
+#define tRandLo         data[6]
+#define tRandHi         data[7]
+#define tRand           6
+
+static void StartMonListScrolling(void)
+{
+    u32 id = FindTaskIdByFunc(Task_MonListScroller); 
+
+    if (id != TASK_NONE)
+    {
+        gTasks[id].tStarted = TRUE;
+    }
+}
+
+static void PauseMonListScrolling(void)
+{
+    u32 id = FindTaskIdByFunc(Task_MonListScroller); 
+
+    if (id != TASK_NONE)
+    {
+        s16 *data = gTasks[id].data;
+        struct Sprite *monSprite;
+        tState = 5;
+        monSprite = &gSprites[tMonSprite];
+        monSprite->callback = SpriteCallbackDummy;
+    }
+}
+
+static void StopMonListScrolling(void)
+{
+   u32 id = FindTaskIdByFunc(Task_MonListScroller);
+
+    if (id != TASK_NONE)
+    {
+        gTasks[id].tState = 4;
+    }
+}
+static u32 MonListScrollingCurrentSpecies(void)
+{
+    u32 id = FindTaskIdByFunc(Task_MonListScroller);
+    u32 species = TITLE_SPECIES;
+
+    if (id != TASK_NONE)
+    {
+        species = gTasks[id].tCurrentSpecies;
+    }
+
+    return species;
+}
+
+static u16 NextSpecies(u32 taskId)
+{
+    s32 i;
+    s32 currentIndex = 0;
+    u16 *data = gTasks[taskId].data;
+    u16 currentSpecies = tCurrentSpecies;
+
+
+    for (i = 0; i < ARRAY_COUNT(sTitleMons); i++)
+    {
+        if (sTitleMons[i] == currentSpecies)
+        {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    for (i = currentIndex; i == currentIndex; i = TitleScreen_rand(taskId, tRand) % ARRAY_COUNT(sTitleMons));
+
+    return sTitleMons[i];
+}
+
+static void Task_MonListScroller(u8 taskId)
+{
+    s16 *data = gTasks[taskId].data;
+    u16 species;
+
+    switch (tState)
+    {
+    case 0:
+        species = sTitleMons[0];
+        tCurrentSpecies = species;
+        tTrainerSprite = CreateTrainerSpriteOnTS();
+        tMonSprite = CreateMonSprite(species, TS_INITIAL_MON);
+        tState++;
+        tStarted = FALSE;
+        tTimer = 0;
+        TitleScreen_srand(taskId, tRand, REG_TM1CNT_L);
+        break;
+    case 1:
+        if (!tStarted)
+            break;
+        if (++tTimer >= 42)
+        {
+            tTimer = 0;
+            gSprites[tMonSprite].callback = SpriteCallback_MoveMonOut;
+            gSprites[tMonSprite].sTimer = 4;
+            tState++;
+        }
+        break;
+    case 2:
+        if (gSprites[tMonSprite].sDeactivate)
+        {
+            FreeAndDestroyMonPicSprite(tMonSprite);
+            tCurrentSpecies = NextSpecies(taskId);
+            tMonSprite = CreateMonSprite(tCurrentSpecies, TS_NEXT_MON + (TitleScreen_rand(taskId, tRand) % SHINY_ODDS));
+            gSprites[tMonSprite].callback = SpriteCallback_MoveMonIn;
+            gSprites[tMonSprite].sTimer = 4;
+            tState++;
+        }
+        break;
+    case 3:
+        if (gSprites[tMonSprite].sState == 1)
+        {
+            gSprites[tMonSprite].callback = SpriteCallbackDummy;
+            gSprites[tMonSprite].sState = 0;
+            tState = 1;
+            tTimer = 0;
+        }
+        break;
+    case 4:
+        FreeAndDestroyMonPicSprite(tMonSprite);
+        // DestroySprite(&gSprites[tTrainerSprite]);
+        FreeAndDestroyMonPicSprite(tTrainerSprite);
+        DestroyTask(taskId);
+        break;
+    case 5:
+    default:
+        break;
+    }
+}
+
+#undef tState
+#undef tTimer
+#undef tTrainerSprite
+#undef tCurrentSpecies
+#undef tMonSprite
+#undef tRandLo
+#undef tRandHi
+#undef tRand
+
+#undef sState
+#undef sTimer
+#undef sDeactivate
 
 static void TitleScreen_srand(u8 taskId, u8 field, u16 seed)
 {
