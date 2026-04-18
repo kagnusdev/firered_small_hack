@@ -18,6 +18,8 @@
 #include "text_window_graphics.h"
 #include "constants/songs.h"
 
+#include "comfy_anim.h"
+
 enum MainMenuType
 {
     MAIN_MENU_NEWGAME = 0,
@@ -183,6 +185,7 @@ static bool32 MainMenuGpuInit(u8 a0)
     DmaFill16(3, 0, (void *)(PLTT + 2), PLTT_SIZE - 2);
     ScanlineEffect_Stop();
     ResetTasks();
+    ReleaseComfyAnims();
     ResetSpriteData();
     FreeAllSpritePalettes();
     ResetPaletteFade();

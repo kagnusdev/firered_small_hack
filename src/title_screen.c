@@ -35,6 +35,7 @@ enum TitleScreenScene
 
 #include "trainer_pokemon_sprites.h"
 #include "data.h"
+#include "comfy_anim.h"
 
 static EWRAM_DATA u8 sTitleScreenTimerTaskId = 0;
 
@@ -347,6 +348,8 @@ static const u32 *const sUnused_Tilemaps[] = {
     sUnused_Tilemap6,
 };
 
+#define EXTRA_TITLE_MONS
+
 static const u16 sTitleMons[] = {
 #if defined(FIRERED)
     SPECIES_CHARMANDER,
@@ -372,7 +375,31 @@ static const u16 sTitleMons[] = {
     SPECIES_PIDGEOTTO,
     SPECIES_ONIX,
     SPECIES_PONYTA,
-    SPECIES_MAGIKARP
+    SPECIES_MAGIKARP,
+#if defined(EXTRA_TITLE_MONS)
+    SPECIES_MANKEY,
+    SPECIES_HITMONLEE,
+    SPECIES_VULPIX,
+    SPECIES_CHANSEY,
+    SPECIES_AERODACTYL,
+    SPECIES_JOLTEON,
+    SPECIES_SNORLAX,
+    SPECIES_GLOOM,
+    SPECIES_POLIWAG,
+    SPECIES_DODUO,
+    SPECIES_PORYGON,
+    SPECIES_GENGAR,
+    SPECIES_RAICHU,
+# if defined(FIRERED)
+    SPECIES_CHARMELEON,
+    SPECIES_BEEDRILL,
+    SPECIES_CHARIZARD,
+# elif defined(LEAFGREEN)
+    SPECIES_IVYSAUR,
+    SPECIES_BUTTERFREE,
+    SPECIES_VENUSAUR,
+# endif
+#endif
 };
 
 void CB2_InitTitleScreen(void)
@@ -451,6 +478,7 @@ static void ResetGpuRegs(void)
 static void CB2_TitleScreenRun(void)
 {
     RunTasks();
+    AdvanceComfyAnimations();
     AnimateSprites();
     BuildOamBuffer();
     UpdatePaletteFade();
@@ -1248,46 +1276,22 @@ static void Task_LeafSpawner(u8 taskId)
 
 #endif //FRLG
 
-static const u8 sTrainerPicByPlayerGender[] =
-{
-    [MALE]   = TRAINER_PIC_RED, 
-    [FEMALE] = TRAINER_PIC_LEAF
-};
-
-static const struct OamData sTrainerSpriteOam =
-{
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(64x64),
-    .size = SPRITE_SIZE(64x64),
-    .tileNum = 0,
-    .priority = 0,
-    .paletteNum = 0,
-};
-
-static const struct SpriteTemplate sTrainerPicTemplate =
-{
-    .tileTag = TAG_NONE,
-    .paletteTag = 0,
-    .oam = &sTrainerSpriteOam,
-    .anims = NULL, 
-    .images = NULL,
-    .affineAnims = gDummySpriteAffineAnimTable,
-    .callback = SpriteCallbackDummy,
-};
-
 #if defined(FIRERED)
 # define DEFAULT_TRAINER_GENDER     MALE
 #elif defined(LEAFGREEN)
 # define DEFAULT_TRAINER_GENDER     FEMALE
 #endif
 
+#define INITIAL_MON_X       (144 - 8)
+#define NEXT_MON_X          (DISPLAY_WIDTH + 32)
+#define TRAINER_X           (INITIAL_MON_X + 40)
+#define MON_AND_TRAINER_Y   96
+
 static u32 CreateTrainerSpriteOnTS(void)
 {
     u32 trainerGender = DEFAULT_TRAINER_GENDER;
-    return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, 152 + 32, 64 + 32, 6, TAG_NONE);
+    return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, TRAINER_X, MON_AND_TRAINER_Y, 6, TAG_NONE);
 }
-
 
 enum
 {
@@ -1296,34 +1300,28 @@ enum
     TS_NEXT_MON_SHINY
 };
 
-#define INITIAL_MON_X   144
-
-#define sState       data[0]
-#define sTimer       data[1]
-#define sDeactivate  data[2]
+#define sState          data[0]
+#define sComfyAnim      data[1]
+#define sDeactivate     data[2]
 
 static void SpriteCallback_MoveMonOut(struct Sprite *sprite)
 {
-    switch (sprite->sState)
+    s16 *data = sprite->data;
+    s32 animId = sComfyAnim;
+
+    switch (sState)
     {
     case 0:
-        sprite->sTimer--;
-        if (sprite->sTimer == 0)
+        sprite->x = ReadComfyAnimValueSmooth(&gComfyAnims[animId]);
+        if (gComfyAnims[animId].completed)
         {
-            sprite->x -= 8;
-            if (sprite->x >= -104)
-            {
-                sprite->sTimer = 4;
-            }
-            else
-            {
-                sprite->sState = 1;
-            }
+            ReleaseComfyAnim(animId);
+            sState++;
         }
         break;
     case 1:
-        sprite->sDeactivate = TRUE;
-        sprite->sState++;
+        sDeactivate = TRUE;
+        sState++;
         break;
     case 2:
     default:
@@ -1333,22 +1331,17 @@ static void SpriteCallback_MoveMonOut(struct Sprite *sprite)
 
 static void SpriteCallback_MoveMonIn(struct Sprite *sprite)
 {
-    switch(sprite->sState)
+    s16 *data = sprite->data;
+    s32 animId = sComfyAnim;
+
+    switch(sState)
     {
     case 0:
-        sprite->sTimer--;
-        if (sprite->sTimer == 0)
+        sprite->x = ReadComfyAnimValueSmooth(&gComfyAnims[animId]);
+        if (gComfyAnims[animId].completed)
         {
-            sprite->x -= 8;
-            if (sprite->x > INITIAL_MON_X)
-            {
-                sprite->sTimer = 4;
-            }
-            else
-            {
-                sprite->x = INITIAL_MON_X;
-                sprite->sState = 1;
-            }
+            ReleaseComfyAnim(animId);
+            sState++;
         }
         break;
     }
@@ -1356,10 +1349,10 @@ static void SpriteCallback_MoveMonIn(struct Sprite *sprite)
 
 static u16 CreateMonSprite(u32 species, u32 mode)
 {
-    s16 x = DISPLAY_WIDTH + 32;
-    s16 y = 96;
+    s16 x = NEXT_MON_X;
+    s16 y = MON_AND_TRAINER_Y;
     u32 otId = SHINY_ODDS;
-    u32 personality = 0;//HIHALF(-1);
+    u32 personality = 0;
     u32 ret;
 
     if (mode == TS_INITIAL_MON)
@@ -1368,7 +1361,7 @@ static u16 CreateMonSprite(u32 species, u32 mode)
     }
     else if (mode == TS_NEXT_MON_SHINY)
     {
-        otId = personality = 0;
+        otId = 0;
     }
     y += gMonFrontPicCoords[species].y_offset;
     y -= gEnemyMonElevation[species];
@@ -1483,20 +1476,34 @@ static void Task_MonListScroller(u8 taskId)
             break;
         if (++tTimer >= 42)
         {
+            struct ComfyAnimEasingConfig config;
+
+            InitComfyAnimConfig_Easing(&config);
+            config.from = Q_24_8(INITIAL_MON_X);
+            config.to = Q_24_8(-64);
+            config.durationFrames = 30;
+            config.easingFunc = ComfyAnimEasing_EaseInCubic;
             tTimer = 0;
+            gSprites[tMonSprite].sComfyAnim = CreateComfyAnim_Easing(&config);
             gSprites[tMonSprite].callback = SpriteCallback_MoveMonOut;
-            gSprites[tMonSprite].sTimer = 4;
             tState++;
         }
         break;
     case 2:
         if (gSprites[tMonSprite].sDeactivate)
         {
+            struct ComfyAnimEasingConfig config;
+
             FreeAndDestroyMonPicSprite(tMonSprite);
             tCurrentSpecies = NextSpecies(taskId);
-            tMonSprite = CreateMonSprite(tCurrentSpecies, TS_NEXT_MON + (TitleScreen_rand(taskId, tRand) % SHINY_ODDS));
+            InitComfyAnimConfig_Easing(&config);
+            config.from = Q_24_8(NEXT_MON_X);
+            config.to = Q_24_8(INITIAL_MON_X);
+            config.durationFrames = 15;
+            config.easingFunc = ComfyAnimEasing_EaseOutCubic;
+            tMonSprite = CreateMonSprite(tCurrentSpecies, TS_NEXT_MON + (TitleScreen_rand(taskId, tRand) % (SHINY_ODDS * SHINY_ODDS)));
+            gSprites[tMonSprite].sComfyAnim = CreateComfyAnim_Easing(&config);
             gSprites[tMonSprite].callback = SpriteCallback_MoveMonIn;
-            gSprites[tMonSprite].sTimer = 4;
             tState++;
         }
         break;
@@ -1511,7 +1518,6 @@ static void Task_MonListScroller(u8 taskId)
         break;
     case 4:
         FreeAndDestroyMonPicSprite(tMonSprite);
-        // DestroySprite(&gSprites[tTrainerSprite]);
         FreeAndDestroyMonPicSprite(tTrainerSprite);
         DestroyTask(taskId);
         break;
@@ -1531,7 +1537,7 @@ static void Task_MonListScroller(u8 taskId)
 #undef tRand
 
 #undef sState
-#undef sTimer
+#undef sComfyAnim
 #undef sDeactivate
 
 static void TitleScreen_srand(u8 taskId, u8 field, u16 seed)

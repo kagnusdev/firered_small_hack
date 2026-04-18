@@ -9,6 +9,8 @@
 #include "help_system.h"
 #include "m4a.h"
 
+#include "comfy_anim.h"
+
 enum {
     SCENE_ENSURE_CONNECT,
     SCENE_TURN_OFF_POWER,
@@ -103,6 +105,7 @@ void CB2_InitBerryFixProgram(void)
     DmaFill32(3, 0, (void *)PLTT, PLTT_SIZE);
     ResetSpriteData();
     ResetTasks();
+    ReleaseComfyAnims();
     ScanlineEffect_Stop();
     gHelpSystemEnabled = FALSE;
     taskId = CreateTask(Task_BerryFixMain, 0);
