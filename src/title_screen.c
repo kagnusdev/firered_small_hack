@@ -37,6 +37,10 @@ enum TitleScreenScene
 #include "data.h"
 #include "comfy_anim.h"
 
+#define TS_MON_PAL_IDX          12
+#define TS_TRAINER_PAL_IDX      (TS_MON_PAL_IDX + 1)
+#define TS_SELECTED_PAL_IDX     (((1 << TS_MON_PAL_IDX) | (1 << TS_TRAINER_PAL_IDX)) << 16)
+
 static EWRAM_DATA u8 sTitleScreenTimerTaskId = 0;
 
 static void ResetGpuRegs(void);
@@ -71,6 +75,8 @@ static void Task_LeafSpawner(u8 taskId);
 static void StartMonListScrolling(void);
 static void PauseMonListScrolling(void);
 static void StopMonListScrolling(void);
+static void TitleReloadUnfadedSpritesPalettes(void);
+static void TitleReloadMonScrollingSpritesPalettes(void);
 static u32 MonListScrollingCurrentSpecies(void);
 static void Task_MonListScroller(u8 taskId);
 static void TitleScreen_srand(u8 taskId, u8 field, u16 seed);
@@ -348,7 +354,7 @@ static const u32 *const sUnused_Tilemaps[] = {
     sUnused_Tilemap6,
 };
 
-#define EXTRA_TITLE_MONS
+#define NO_EXTRA_TITLE_MONS
 
 static const u16 sTitleMons[] = {
 #if defined(FIRERED)
@@ -563,7 +569,7 @@ static void SetTitleScreenScene_FlashSprite(s16 *data)
     switch (tState)
     {
     case 0:
-        SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG1 | BLDCNT_EFFECT_LIGHTEN);
+        SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_OBJ | BLDCNT_EFFECT_LIGHTEN);
         SetGpuReg(REG_OFFSET_BLDY, 0);
         data[2] = 128;
         UpdateScanlineEffectRegBuffer(data[2]);
@@ -597,8 +603,8 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
         data[2]++;
         if (data[2] > 10)
         {
-            TintPalette_GrayScale2(&gPlttBufferUnfaded[BG_PLTT_ID(13)], 16);
-            BeginNormalPaletteFade(1 << 13, 9, 16, 0, RGB_BLACK);
+            TintPalette_GrayScale2(&gPlttBufferUnfaded[OBJ_PLTT_ID(TS_MON_PAL_IDX)], 16 * 2);
+            BeginNormalPaletteFade(TS_SELECTED_PAL_IDX, 9, 16, 0, RGB_BLACK);
             tState++;
         }
         break;
@@ -614,7 +620,7 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
         if (data[2] > 36)
         {
             CreateTask(Task_TitleScreen_SlideWin0, 3);
-            BlendPalettesGradually(1 << 13, -4, 1, 16, RGB(30, 30, 31), 0, 0);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, -4, 1, 16, RGB(30, 30, 31), 0, 0);
             data[2] = 0;
             tState++;
         }
@@ -622,7 +628,7 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
     case 4:
         if (!IsBlendPalettesGraduallyTaskActive(0))
         {
-            BlendPalettesGradually(1 << 13, -4, 15, 0, RGB(30, 30, 31), 0, 0);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, -4, 15, 0, RGB(30, 30, 31), 0, 0);
             tState++;
         }
         break;
@@ -631,14 +637,14 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
         if (data[2] > 20)
         {
             data[2] = 0;
-            BlendPalettesGradually(1 << 13, -4, 1, 16, RGB(30, 30, 31), 0, 0);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, -4, 1, 16, RGB(30, 30, 31), 0, 0);
             tState++;
         }
         break;
     case 6:
         if (!IsBlendPalettesGraduallyTaskActive(0))
         {
-            BlendPalettesGradually(1 << 13, -4, 15, 0, RGB(30, 30, 31), 0, 0);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, -4, 15, 0, RGB(30, 30, 31), 0, 0);
             tState++;
         }
         break;
@@ -647,7 +653,7 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
         if (data[2] > 20)
         {
             data[2] = 0;
-            BlendPalettesGradually(1 << 13, -3, 0, 16, RGB(30, 30, 31), 0, 0);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, -3, 0, 16, RGB(30, 30, 31), 0, 0);
             tState++;
         }
         break;
@@ -660,8 +666,9 @@ static void SetTitleScreenScene_FadeIn(s16 *data)
             BlendPalettes(palettes, 16, RGB(30, 30, 31));
             BeginNormalPaletteFade(palettes, 1, 16, 0, RGB(30, 30, 31));
             ShowBg(0);
-            CpuCopy16(gGraphics_TitleScreen_BoxArtMonPals, &gPlttBufferUnfaded[BG_PLTT_ID(13)], PLTT_SIZE_4BPP);
-            BlendPalettesGradually(1 << 13, 1, 15, 0, RGB(30, 30, 31), 0, 0);
+            TitleReloadUnfadedSpritesPalettes();
+            // CpuCopy16(gGraphics_TitleScreen_BoxArtMonPals, &gPlttBufferUnfaded[BG_PLTT_ID(13)], PLTT_SIZE_4BPP);
+            BlendPalettesGradually(TS_SELECTED_PAL_IDX, 1, 15, 0, RGB(30, 30, 31), 0, 0);
             tState++;
         }
         break;
@@ -986,6 +993,7 @@ static void LoadMainTitleScreenPalsAndResetBgs(void)
     LoadPalette(gGraphics_TitleScreen_BoxArtMonPals, BG_PLTT_ID(13), PLTT_SIZE_4BPP);
     LoadPalette(gGraphics_TitleScreen_BackgroundPals, BG_PLTT_ID(15), PLTT_SIZE_4BPP);
     LoadPalette(gGraphics_TitleScreen_BackgroundPals, BG_PLTT_ID(14), PLTT_SIZE_4BPP);
+    TitleReloadMonScrollingSpritesPalettes();
     ResetBgPositions();
     ClearGpuRegBits(REG_OFFSET_DISPCNT, DISPCNT_WIN0_ON | DISPCNT_WIN1_ON | DISPCNT_OBJWIN_ON);
     ShowBg(1);
@@ -1277,20 +1285,21 @@ static void Task_LeafSpawner(u8 taskId)
 #endif //FRLG
 
 #if defined(FIRERED)
-# define DEFAULT_TRAINER_GENDER     MALE
+# define TS_DEFAULT_TRAINER_GENDER     MALE
 #elif defined(LEAFGREEN)
-# define DEFAULT_TRAINER_GENDER     FEMALE
+# define TS_DEFAULT_TRAINER_GENDER     FEMALE
 #endif
 
-#define INITIAL_MON_X       (144 - 8)
-#define NEXT_MON_X          (DISPLAY_WIDTH + 32)
-#define TRAINER_X           (INITIAL_MON_X + 40)
-#define MON_AND_TRAINER_Y   96
+#define TS_INITIAL_MON_X       (144 - 8)
+#define TS_NEXT_MON_X          (DISPLAY_WIDTH + 32)
+#define TS_TRAINER_X           (TS_INITIAL_MON_X + 40)
+#define TS_MON_AND_TRAINER_Y   96
 
-static u32 CreateTrainerSpriteOnTS(void)
+static u32 CreateTrainerSpriteOnTS(u16 *gender)
 {
-    u32 trainerGender = DEFAULT_TRAINER_GENDER;
-    return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, TRAINER_X, MON_AND_TRAINER_Y, 6, TAG_NONE);
+    u32 trainerGender = TS_DEFAULT_TRAINER_GENDER;
+    *gender = trainerGender;
+    return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, TS_TRAINER_X, TS_MON_AND_TRAINER_Y, TS_TRAINER_PAL_IDX, TAG_NONE);
 }
 
 enum
@@ -1349,15 +1358,15 @@ static void SpriteCallback_MoveMonIn(struct Sprite *sprite)
 
 static u16 CreateMonSprite(u32 species, u32 mode)
 {
-    s16 x = NEXT_MON_X;
-    s16 y = MON_AND_TRAINER_Y;
+    s16 x = TS_NEXT_MON_X;
+    s16 y = TS_MON_AND_TRAINER_Y;
     u32 otId = SHINY_ODDS;
     u32 personality = 0;
     u32 ret;
 
     if (mode == TS_INITIAL_MON)
     {
-        x = INITIAL_MON_X;
+        x = TS_INITIAL_MON_X;
     }
     else if (mode == TS_NEXT_MON_SHINY)
     {
@@ -1385,6 +1394,7 @@ static u16 CreateMonSprite(u32 species, u32 mode)
 #define tRandLo         data[6]
 #define tRandHi         data[7]
 #define tRand           6
+#define tGender         data[8]
 
 static void StartMonListScrolling(void)
 {
@@ -1419,6 +1429,7 @@ static void StopMonListScrolling(void)
         gTasks[id].tState = 4;
     }
 }
+
 static u32 MonListScrollingCurrentSpecies(void)
 {
     u32 id = FindTaskIdByFunc(Task_MonListScroller);
@@ -1430,6 +1441,30 @@ static u32 MonListScrollingCurrentSpecies(void)
     }
 
     return species;
+}
+
+static void TitleReloadUnfadedSpritesPalettes(void)
+{
+    u32 id = FindTaskIdByFunc(Task_MonListScroller);
+
+    if (id != TASK_NONE)
+    {
+        u16 *data = gTasks[id].data;
+        LoadUnfadedCompressedPalette(gMonPaletteTable[tCurrentSpecies].data, OBJ_PLTT_ID(TS_MON_PAL_IDX), PLTT_SIZE_4BPP);
+        LoadUnfadedCompressedPalette(gTrainerFrontPicPaletteTable[PlayerGenderToFrontTrainerPicId(tGender, TRUE)].data, OBJ_PLTT_ID(TS_TRAINER_PAL_IDX), PLTT_SIZE_4BPP);
+    }
+}
+
+static void TitleReloadMonScrollingSpritesPalettes(void)
+{
+    u32 id = FindTaskIdByFunc(Task_MonListScroller);
+
+    if (id != TASK_NONE)
+    {
+        u16 *data = gTasks[id].data;
+        LoadCompressedPalette(gMonPaletteTable[tCurrentSpecies].data, OBJ_PLTT_ID(TS_MON_PAL_IDX), PLTT_SIZE_4BPP);
+        LoadCompressedPalette(gTrainerFrontPicPaletteTable[PlayerGenderToFrontTrainerPicId(tGender, TRUE)].data, OBJ_PLTT_ID(TS_TRAINER_PAL_IDX), PLTT_SIZE_4BPP);
+    }
 }
 
 static u16 NextSpecies(u32 taskId)
@@ -1464,8 +1499,9 @@ static void Task_MonListScroller(u8 taskId)
     case 0:
         species = sTitleMons[0];
         tCurrentSpecies = species;
-        tTrainerSprite = CreateTrainerSpriteOnTS();
+        tTrainerSprite = CreateTrainerSpriteOnTS(&tGender);
         tMonSprite = CreateMonSprite(species, TS_INITIAL_MON);
+        BlendPalettes(TS_SELECTED_PAL_IDX, 16, RGB_BLACK);
         tState++;
         tStarted = FALSE;
         tTimer = 0;
@@ -1479,7 +1515,7 @@ static void Task_MonListScroller(u8 taskId)
             struct ComfyAnimEasingConfig config;
 
             InitComfyAnimConfig_Easing(&config);
-            config.from = Q_24_8(INITIAL_MON_X);
+            config.from = Q_24_8(TS_INITIAL_MON_X);
             config.to = Q_24_8(-64);
             config.durationFrames = 30;
             config.easingFunc = ComfyAnimEasing_EaseInCubic;
@@ -1497,8 +1533,8 @@ static void Task_MonListScroller(u8 taskId)
             FreeAndDestroyMonPicSprite(tMonSprite);
             tCurrentSpecies = NextSpecies(taskId);
             InitComfyAnimConfig_Easing(&config);
-            config.from = Q_24_8(NEXT_MON_X);
-            config.to = Q_24_8(INITIAL_MON_X);
+            config.from = Q_24_8(TS_NEXT_MON_X);
+            config.to = Q_24_8(TS_INITIAL_MON_X);
             config.durationFrames = 15;
             config.easingFunc = ComfyAnimEasing_EaseOutCubic;
             tMonSprite = CreateMonSprite(tCurrentSpecies, TS_NEXT_MON + (TitleScreen_rand(taskId, tRand) % (SHINY_ODDS * SHINY_ODDS)));
@@ -1535,6 +1571,7 @@ static void Task_MonListScroller(u8 taskId)
 #undef tRandLo
 #undef tRandHi
 #undef tRand
+#undef tGender
 
 #undef sState
 #undef sComfyAnim
