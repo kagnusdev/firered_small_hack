@@ -1295,9 +1295,19 @@ static void Task_LeafSpawner(u8 taskId)
 #define TS_TRAINER_X           (TS_INITIAL_MON_X + 40)
 #define TS_MON_AND_TRAINER_Y   96
 
+static u32 ReadGenderFromSave(u32 fallback)
+{
+    LoadGameSave(SAVE_NORMAL);
+    if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_INVALID)
+    {
+        return fallback;
+    }
+    return gSaveBlock2Ptr->playerGender;
+}
+
 static u32 CreateTrainerSpriteOnTS(u16 *gender)
 {
-    u32 trainerGender = TS_DEFAULT_TRAINER_GENDER;
+    u32 trainerGender = ReadGenderFromSave(TS_DEFAULT_TRAINER_GENDER);
     *gender = trainerGender;
     return CreateTrainerPicSprite(PlayerGenderToFrontTrainerPicId(trainerGender, TRUE), TRUE, TS_TRAINER_X, TS_MON_AND_TRAINER_Y, TS_TRAINER_PAL_IDX, TAG_NONE);
 }
