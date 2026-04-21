@@ -18,4 +18,7 @@ s16 Q_8_8_inv(s16 y);
 s16 Q_N_S_inv(u8 s, s16 y);
 s32 Q_24_8_inv(s32 y);
 
+#define MathUtil_Mul32 Q_24_8_mul
+#define MathUtil_Div32 Q_24_8_div
+
 #endif //GUARD_MATH_UTIL_H

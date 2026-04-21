@@ -7,6 +7,8 @@
 #include "text_window.h"
 #include "constants/songs.h"
 
+#include "comfy_anim.h"
+
 struct ClearSaveDataStruct {
     u8 unk0;
     u8 unk1;
@@ -181,6 +183,7 @@ static void CB2_Sub_SaveClearScreen_Init(void)
     ResetSpriteData();
     ResetPaletteFade();
     ResetTasks();
+    ReleaseComfyAnims();
 }
 
 static void SaveClearScreen_GpuInit(void)
