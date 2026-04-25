@@ -24,7 +24,8 @@ enum MainMenuType
 {
     MAIN_MENU_NEWGAME = 0,
     MAIN_MENU_CONTINUE,
-    MAIN_MENU_MYSTERYGIFT
+    MAIN_MENU_MYSTERYGIFT,
+    MAIN_MENU_OPTION
 };
 
 enum MainMenuWindow
@@ -32,17 +33,24 @@ enum MainMenuWindow
     MAIN_MENU_WINDOW_NEWGAME_ONLY = 0,
     MAIN_MENU_WINDOW_CONTINUE,
     MAIN_MENU_WINDOW_NEWGAME,
-    MAIN_MENU_WINDOW_MYSTERYGIFT,
+    MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT,
     MAIN_MENU_WINDOW_ERROR,
+    MAIN_MENU_WINDOW_OPTION_FULL,
+    MAIN_MENU_WINDOW_OPTION_NG_ONLY,
     MAIN_MENU_WINDOW_COUNT
 };
 
 #define tMenuType  data[0]
 #define tCursorPos data[1]
 
-#define tUnused8         data[8]
+#define tFromOptionMenu  data[8]
 #define tMGErrorMsgState data[9]
 #define tMGErrorType     data[10]
+
+#define tScrollArrowTaskId data[13]
+#define tIsScrolled        data[14]
+
+#include "option_menu.h"
 
 static bool32 MainMenuGpuInit(u8 a0);
 static void Task_SetWin0BldRegsAndCheckSaveFile(u8 taskId);
@@ -57,7 +65,7 @@ static void Task_HandleMenuInput(u8 taskId);
 static void Task_ExecuteMainMenuSelection(u8 taskId);
 static void Task_MysteryGiftError(u8 taskId);
 static void Task_ReturnToTileScreen(u8 taskId);
-static void MoveWindowByMenuTypeAndCursorPos(u8 menuType, u8 cursorPos);
+static void MoveWindowByMenuTypeAndCursorPos(u32 menuType, u32 cursorPos, s32 isScrolled);
 static bool8 HandleMenuInput(u8 taskId);
 static void PrintMessageOnWindow4(const u8 *str);
 static void PrintContinueStats(void);
@@ -101,7 +109,7 @@ static const struct WindowTemplate sWindowTemplate[] = {
         .paletteNum = 15,
         .baseBlock = 0x0f1
     }, 
-    [MAIN_MENU_WINDOW_MYSTERYGIFT] = {
+    [MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT] = {
         .bg = 0,
         .tilemapLeft = 3,
         .tilemapTop = 17,
@@ -119,6 +127,24 @@ static const struct WindowTemplate sWindowTemplate[] = {
         .paletteNum = 15,
         .baseBlock = 0x001
     }, 
+    [MAIN_MENU_WINDOW_OPTION_FULL] = {
+        .bg = 0,
+        .tilemapLeft = 3,
+        .tilemapTop = 21,
+        .width = 24,
+        .height = 2,
+        .paletteNum = 15,
+        .baseBlock = 0x151
+    },
+    [MAIN_MENU_WINDOW_OPTION_NG_ONLY] = {
+        .bg = 0,
+        .tilemapLeft = 3,
+        .tilemapTop = 5,
+        .width = 24,
+        .height = 2,
+        .paletteNum = 15,
+        .baseBlock = 0x031
+    },
     [MAIN_MENU_WINDOW_COUNT] = DUMMY_WIN_TEMPLATE
 };
 
@@ -138,7 +164,7 @@ static const struct BgTemplate sBgTemplate[] = {
     }
 };
 
-static const u8 sMenuCursorYMax[] = { 0, 1, 2 };
+static const u8 sMenuCursorYMax[] = { 1, 2, 3 };
 
 static void CB2_MainMenu(void)
 {
@@ -157,7 +183,7 @@ static void VBlankCB_MainMenu(void)
 
 void CB2_InitMainMenu(void)
 {
-    MainMenuGpuInit(1);
+    MainMenuGpuInit(0);
 }
 
 static void CB2_InitMainMenu_2(void)
@@ -212,7 +238,7 @@ static bool32 MainMenuGpuInit(u8 a0)
     SetGpuReg(REG_OFFSET_DISPCNT, DISPCNT_OBJ_1D_MAP | DISPCNT_OBJ_ON | DISPCNT_WIN0_ON);
     taskId = CreateTask(Task_SetWin0BldRegsAndCheckSaveFile, 0);
     gTasks[taskId].tCursorPos = 0;
-    gTasks[taskId].tUnused8 = a0;
+    gTasks[taskId].tFromOptionMenu = a0;
     return FALSE;
 }
 
@@ -317,10 +343,7 @@ static void Task_SetWin0BldRegsNoSaveFileCheck(u8 taskId)
         SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG0 | BLDCNT_TGT1_BG1 | BLDCNT_TGT1_BG2 | BLDCNT_TGT1_BG3 | BLDCNT_TGT1_OBJ | BLDCNT_TGT1_BD | BLDCNT_EFFECT_DARKEN);
         SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(0, 0));
         SetGpuReg(REG_OFFSET_BLDY, 7);
-        if (gTasks[taskId].tMenuType == MAIN_MENU_NEWGAME)
-            gTasks[taskId].func = Task_ExecuteMainMenuSelection;
-        else
-            gTasks[taskId].func = Task_WaitFadeAndPrintMainMenuText;
+        gTasks[taskId].func = Task_WaitFadeAndPrintMainMenuText;
     }
 }
 
@@ -332,13 +355,34 @@ static void Task_WaitFadeAndPrintMainMenuText(u8 taskId)
     }
 }
 
+#include "menu_indicators.h"
+// #define ARROWS_X (0x78) // centered, like in emerald
+#define ARROWS_X (DISPLAY_WIDTH - 8) // right border
+static const struct ScrollArrowsTemplate sScrollArrowsTemplate_MainMenu =
+{
+    .firstArrowType = 2,
+    .firstX = ARROWS_X,
+    .firstY = 8,
+    .secondArrowType = 3,
+    .secondX = ARROWS_X,
+    .secondY = 0x98,
+    .fullyUpThreshold = 0, // tIsScrolled == FALSE
+    .fullyDownThreshold = 1, // tIsScrolled == TRUE
+    .tileTag = 1,
+    .palTag = 1,
+    .palNum = 0
+};
+#undef ARROWS_X
+
 static void Task_PrintMainMenuText(u8 taskId)
 {
     u16 pal;
+    s16 *data = gTasks[taskId].data;
+
     SetGpuReg(REG_OFFSET_WIN0H, 0);
     SetGpuReg(REG_OFFSET_WIN0V, 0);
-    SetGpuReg(REG_OFFSET_WININ, 0x0001);
-    SetGpuReg(REG_OFFSET_WINOUT, 0x0021);
+    SetGpuReg(REG_OFFSET_WININ, WININ_WIN0_BG0 | WININ_WIN0_OBJ);
+    SetGpuReg(REG_OFFSET_WINOUT, WINOUT_WIN01_BG0 | WINOUT_WIN01_OBJ | WINOUT_WIN01_CLR);
     SetGpuReg(REG_OFFSET_BLDCNT, BLDCNT_TGT1_BG0 | BLDCNT_TGT1_BG1 | BLDCNT_TGT1_BG2 | BLDCNT_TGT1_BG3 | BLDCNT_TGT1_OBJ | BLDCNT_TGT1_BD | BLDCNT_EFFECT_DARKEN);
     SetGpuReg(REG_OFFSET_BLDALPHA, BLDALPHA_BLEND(0, 0));
     SetGpuReg(REG_OFFSET_BLDY, 7);
@@ -352,43 +396,70 @@ static void Task_PrintMainMenuText(u8 taskId)
     case MAIN_MENU_NEWGAME:
     default:
         FillWindowPixelBuffer(MAIN_MENU_WINDOW_NEWGAME_ONLY, PIXEL_FILL(10));
+        FillWindowPixelBuffer(MAIN_MENU_WINDOW_OPTION_NG_ONLY, PIXEL_FILL(10));
         AddTextPrinterParameterized3(MAIN_MENU_WINDOW_NEWGAME_ONLY, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_NewGame);
+        AddTextPrinterParameterized3(MAIN_MENU_WINDOW_OPTION_NG_ONLY, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_MenuOption);
         MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_NEWGAME_ONLY]);
+        MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_OPTION_NG_ONLY]);
         PutWindowTilemap(MAIN_MENU_WINDOW_NEWGAME_ONLY);
+        PutWindowTilemap(MAIN_MENU_WINDOW_OPTION_NG_ONLY);
         CopyWindowToVram(MAIN_MENU_WINDOW_NEWGAME_ONLY, COPYWIN_FULL);
+        CopyWindowToVram(MAIN_MENU_WINDOW_OPTION_NG_ONLY, COPYWIN_FULL);
         break;
     case MAIN_MENU_CONTINUE:
         FillWindowPixelBuffer(MAIN_MENU_WINDOW_CONTINUE, PIXEL_FILL(10));
         FillWindowPixelBuffer(MAIN_MENU_WINDOW_NEWGAME, PIXEL_FILL(10));
+        FillWindowPixelBuffer(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, PIXEL_FILL(10));
         AddTextPrinterParameterized3(MAIN_MENU_WINDOW_CONTINUE, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_Continue);
         AddTextPrinterParameterized3(MAIN_MENU_WINDOW_NEWGAME, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_NewGame);
+        AddTextPrinterParameterized3(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_MenuOption);
         PrintContinueStats();
         MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_CONTINUE]);
         MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_NEWGAME]);
+        MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT]);
         PutWindowTilemap(MAIN_MENU_WINDOW_CONTINUE);
         PutWindowTilemap(MAIN_MENU_WINDOW_NEWGAME);
+        PutWindowTilemap(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT);
         CopyWindowToVram(MAIN_MENU_WINDOW_CONTINUE, COPYWIN_GFX);
         CopyWindowToVram(MAIN_MENU_WINDOW_NEWGAME, COPYWIN_FULL);
+        CopyWindowToVram(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, COPYWIN_FULL);
         break;
     case MAIN_MENU_MYSTERYGIFT:
         FillWindowPixelBuffer(MAIN_MENU_WINDOW_CONTINUE, PIXEL_FILL(10));
         FillWindowPixelBuffer(MAIN_MENU_WINDOW_NEWGAME, PIXEL_FILL(10));
-        FillWindowPixelBuffer(MAIN_MENU_WINDOW_MYSTERYGIFT, PIXEL_FILL(10));
+        FillWindowPixelBuffer(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, PIXEL_FILL(10));
+        FillWindowPixelBuffer(MAIN_MENU_WINDOW_OPTION_FULL, PIXEL_FILL(10));
         AddTextPrinterParameterized3(MAIN_MENU_WINDOW_CONTINUE, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_Continue);
         AddTextPrinterParameterized3(MAIN_MENU_WINDOW_NEWGAME, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_NewGame);
         gTasks[taskId].tMGErrorType = 1;
-        AddTextPrinterParameterized3(MAIN_MENU_WINDOW_MYSTERYGIFT, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_MysteryGift);
+        AddTextPrinterParameterized3(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_MysteryGift);
+        AddTextPrinterParameterized3(MAIN_MENU_WINDOW_OPTION_FULL, FONT_NORMAL, 2, 2, sTextColor1, -1, gText_MenuOption);
         PrintContinueStats();
         MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_CONTINUE]);
         MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_NEWGAME]);
-        MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_MYSTERYGIFT]);
+        MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT]);
+        MainMenu_DrawWindow(&sWindowTemplate[MAIN_MENU_WINDOW_OPTION_FULL]);
         PutWindowTilemap(MAIN_MENU_WINDOW_CONTINUE);
         PutWindowTilemap(MAIN_MENU_WINDOW_NEWGAME);
-        PutWindowTilemap(MAIN_MENU_WINDOW_MYSTERYGIFT);
+        PutWindowTilemap(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT);
+        PutWindowTilemap(MAIN_MENU_WINDOW_OPTION_FULL);
         CopyWindowToVram(MAIN_MENU_WINDOW_CONTINUE, COPYWIN_GFX);
         CopyWindowToVram(MAIN_MENU_WINDOW_NEWGAME, COPYWIN_GFX);
-        CopyWindowToVram(MAIN_MENU_WINDOW_MYSTERYGIFT, COPYWIN_FULL);
+        CopyWindowToVram(MAIN_MENU_WINDOW_OPTION_OR_MYSTERYGIFT, COPYWIN_FULL);
+        CopyWindowToVram(MAIN_MENU_WINDOW_OPTION_FULL, COPYWIN_FULL);
+        // use tIsScrolled as a scrollOffset for the default task func
+        tScrollArrowTaskId = AddScrollIndicatorArrowPair(&sScrollArrowsTemplate_MainMenu, &tIsScrolled);
+        if (tFromOptionMenu)
+        {
+            ChangeBgY(0, 0x2000, BG_COORD_ADD);
+            ChangeBgY(1, 0x2000, BG_COORD_ADD);
+            tIsScrolled = TRUE;
+        }
         break;
+    }
+    if (tFromOptionMenu)
+    {
+        tCursorPos = sMenuCursorYMax[tMenuType];
     }
     gTasks[taskId].func = Task_WaitDma3AndFadeIn;
 }
@@ -406,7 +477,7 @@ static void Task_WaitDma3AndFadeIn(u8 taskId)
 
 static void Task_UpdateVisualSelection(u8 taskId)
 {
-    MoveWindowByMenuTypeAndCursorPos(gTasks[taskId].tMenuType, gTasks[taskId].tCursorPos);
+    MoveWindowByMenuTypeAndCursorPos(gTasks[taskId].tMenuType, gTasks[taskId].tCursorPos, gTasks[taskId].tIsScrolled);
     gTasks[taskId].func = Task_HandleMenuInput;
 }
 
@@ -427,7 +498,16 @@ static void Task_ExecuteMainMenuSelection(u8 taskId)
         {
         default:
         case MAIN_MENU_NEWGAME:
-            menuAction = MAIN_MENU_NEWGAME;
+            switch (gTasks[taskId].tCursorPos)
+            {
+            default:
+            case 0:
+                menuAction = MAIN_MENU_NEWGAME;
+                break;
+            case 1:
+                menuAction = MAIN_MENU_OPTION;
+                break;
+            }
             break;
         case MAIN_MENU_CONTINUE:
             switch (gTasks[taskId].tCursorPos)
@@ -438,6 +518,9 @@ static void Task_ExecuteMainMenuSelection(u8 taskId)
                 break;
             case 1:
                 menuAction = MAIN_MENU_NEWGAME;
+                break;
+            case 2:
+                menuAction = MAIN_MENU_OPTION;
                 break;
             }
             break;
@@ -464,6 +547,9 @@ static void Task_ExecuteMainMenuSelection(u8 taskId)
                     menuAction = MAIN_MENU_MYSTERYGIFT;
                 }
                 break;
+            case 3:
+                menuAction = MAIN_MENU_OPTION;
+                break;
             }
             break;
         }
@@ -488,6 +574,12 @@ static void Task_ExecuteMainMenuSelection(u8 taskId)
             HelpSystem_Disable();
             FreeAllWindowBuffers();
             DestroyTask(taskId);
+            break;
+        case MAIN_MENU_OPTION:
+            FreeAllWindowBuffers();
+            DestroyTask(taskId);
+            gMain.savedCallback = CB2_InitMainMenu_2;
+            SetMainCallback2(CB2_OptionsMenuFromStartMenu);
             break;
         }
     }
@@ -534,7 +626,7 @@ static void Task_ReturnToTileScreen(u8 taskId)
     }
 }
 
-static void MoveWindowByMenuTypeAndCursorPos(u8 menuType, u8 cursorPos)
+static void MoveWindowByMenuTypeAndCursorPos(u32 menuType, u32 cursorPos, s32 isScrolled)
 {
     u16 win0vTop, win0vBot;
     SetGpuReg(REG_OFFSET_WIN0H, WIN_RANGE(18, 222));
@@ -542,11 +634,20 @@ static void MoveWindowByMenuTypeAndCursorPos(u8 menuType, u8 cursorPos)
     {
     default:
     case MAIN_MENU_NEWGAME:
-        win0vTop = 0x00 << 8;
-        win0vBot = 0x20;
+        switch (cursorPos)
+        {
+            default:
+            case 0: // New Game
+                win0vTop = 0x00 << 8;
+                win0vBot = 0x20;
+                break;
+            case 1: // Option
+                win0vTop = 0x20 << 8;
+                win0vBot = 0x40;
+                break;
+        }
         break;
     case MAIN_MENU_CONTINUE:
-    case MAIN_MENU_MYSTERYGIFT:
         switch (cursorPos)
         {
         default:
@@ -558,9 +659,47 @@ static void MoveWindowByMenuTypeAndCursorPos(u8 menuType, u8 cursorPos)
             win0vTop = 0x60 << 8;
             win0vBot = 0x80;
             break;
-        case 2: // MYSTERY GIFT
+        case 2: // Option
             win0vTop = 0x80 << 8;
             win0vBot = 0xA0;
+            break;
+        }
+        break;
+    case MAIN_MENU_MYSTERYGIFT:
+    switch (cursorPos)
+        {
+        default:
+        case 0: // CONTINUE
+            win0vTop = 0x00 << 8;
+            win0vBot = 0x60;
+            break;
+        case 1: // NEW GAME
+            if (isScrolled)
+            {
+                win0vTop = (0x60 - 32) << 8;
+                win0vBot = 0x80 - 32;
+            }
+            else
+            {
+                win0vTop = 0x60 << 8;
+                win0vBot = 0x80;
+            }
+            break;
+        case 2: // MYSTERY GIFT
+            if (isScrolled)
+            {
+                win0vTop = (0x80 - 32) << 8;
+                win0vBot = 0xA0 - 32;
+            }
+            else
+            {
+                win0vTop = 0x80 << 8;
+                win0vBot = 0xA0;
+            }
+            break;
+        case 3: // Option
+            win0vTop = (0xA0 - 32) << 8;
+            win0vBot = 0xC0 - 32;
             break;
         }
         break;
@@ -570,11 +709,14 @@ static void MoveWindowByMenuTypeAndCursorPos(u8 menuType, u8 cursorPos)
 
 static bool8 HandleMenuInput(u8 taskId)
 {
+    s16 *data = gTasks[taskId].data;
+
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
         IsWirelessAdapterConnected(); // called for its side effects only
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
+        if (tMenuType == MAIN_MENU_MYSTERYGIFT) RemoveScrollIndicatorArrowPair(tScrollArrowTaskId);
         gTasks[taskId].func = Task_ExecuteMainMenuSelection;
     }
     else if (JOY_NEW(B_BUTTON))
@@ -583,16 +725,29 @@ static bool8 HandleMenuInput(u8 taskId)
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
         SetGpuReg(REG_OFFSET_WIN0H, WIN_RANGE(0, 240));
         SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(0, 160));
+        if (tMenuType == MAIN_MENU_MYSTERYGIFT) RemoveScrollIndicatorArrowPair(tScrollArrowTaskId);
         gTasks[taskId].func = Task_ReturnToTileScreen;
     }
     else if (JOY_NEW(DPAD_UP) && gTasks[taskId].tCursorPos > 0)
     {
         gTasks[taskId].tCursorPos--;
+        if (tMenuType == MAIN_MENU_MYSTERYGIFT && tIsScrolled == TRUE && tCursorPos == 1)
+        {
+            ChangeBgY(0, 0x2000, BG_COORD_SUB);
+            ChangeBgY(1, 0x2000, BG_COORD_SUB);
+            tIsScrolled = FALSE;
+        }
         return TRUE;
     }
     else if (JOY_NEW(DPAD_DOWN) && gTasks[taskId].tCursorPos < sMenuCursorYMax[gTasks[taskId].tMenuType])
     {
         gTasks[taskId].tCursorPos++;
+        if (tMenuType == MAIN_MENU_MYSTERYGIFT && tIsScrolled == FALSE && tCursorPos == sMenuCursorYMax[tMenuType])
+        {
+            ChangeBgY(0, 0x2000, BG_COORD_ADD);
+            ChangeBgY(1, 0x2000, BG_COORD_ADD);
+            tIsScrolled = TRUE;
+        }
         return TRUE;
     }
 

@@ -832,9 +832,25 @@ static void QuestLog_AdvancePlayhead(void)
 
 static void QuestLog_StartFinalScene(void)
 {
+    u16 backupOptions[6];
+
     ResetSpecialVars();
     Save_ResetSaveCounters();
+    // Backup changes by option main menu
+    backupOptions[0] = gSaveBlock2Ptr->optionsTextSpeed;
+    backupOptions[1] = gSaveBlock2Ptr->optionsBattleSceneOff;
+    backupOptions[2] = gSaveBlock2Ptr->optionsBattleStyle;
+    backupOptions[3] = gSaveBlock2Ptr->optionsSound;
+    backupOptions[4] = gSaveBlock2Ptr->optionsButtonMode;
+    backupOptions[5] = gSaveBlock2Ptr->optionsWindowFrameType;
     LoadGameSave(SAVE_NORMAL);
+    // Restore changes by option main menu
+    gSaveBlock2Ptr->optionsTextSpeed = backupOptions[0];
+    gSaveBlock2Ptr->optionsBattleSceneOff = backupOptions[1];
+    gSaveBlock2Ptr->optionsBattleStyle = backupOptions[2];
+    gSaveBlock2Ptr->optionsSound = backupOptions[3];
+    gSaveBlock2Ptr->optionsButtonMode = backupOptions[4];
+    gSaveBlock2Ptr->optionsWindowFrameType = backupOptions[5];
     SetMainCallback2(CB2_EnterFieldFromQuestLog);
     gFieldCallback2 = FieldCB2_FinalScene;
     FreeAllWindowBuffers();
