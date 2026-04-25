@@ -59,3 +59,10 @@ Route10_PokemonCenter_1F_EventScript_GetAideRequestInfo::
 	buffernumberstring STR_VAR_1, REQUIRED_OWNED_MONS
 	bufferitemname STR_VAR_2, ITEM_EVERSTONE
 	return
+
+Route10_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

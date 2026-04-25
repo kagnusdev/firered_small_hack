@@ -34,3 +34,10 @@ SaffronCity_PokemonCenter_1F_EventScript_YoungsterRocketsGone::
 	msgbox SaffronCity_PokemonCenter_1F_Text_TeamRocketTookOff
 	release
 	end
+
+SaffronCity_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

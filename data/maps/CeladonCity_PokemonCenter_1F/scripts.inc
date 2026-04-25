@@ -25,3 +25,10 @@ CeladonCity_PokemonCenter_1F_EventScript_CooltrainerF::
 CeladonCity_PokemonCenter_1F_EventScript_Youngster::
 	msgbox CeladonCity_PokemonCenter_1F_Text_GoToCyclingRoadIfIHadBike, MSGBOX_NPC
 	end
+
+CeladonCity_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

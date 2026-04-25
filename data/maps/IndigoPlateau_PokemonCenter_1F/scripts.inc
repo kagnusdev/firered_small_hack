@@ -68,3 +68,10 @@ IndigoPlateau_PokemonCenter_1F_EventScript_Nurse::
 	call EventScript_PkmnCenterNurse
 	release
 	end
+
+IndigoPlateau_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

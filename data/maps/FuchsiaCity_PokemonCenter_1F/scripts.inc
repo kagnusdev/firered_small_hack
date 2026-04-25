@@ -25,3 +25,10 @@ FuchsiaCity_PokemonCenter_1F_EventScript_CooltrainerF::
 FuchsiaCity_PokemonCenter_1F_EventScript_Youngster::
 	msgbox FuchsiaCity_PokemonCenter_1F_Text_VisitSafariZoneForPokedex, MSGBOX_NPC
 	end
+
+FuchsiaCity_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

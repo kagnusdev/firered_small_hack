@@ -138,3 +138,10 @@ CinnabarIsland_PokemonCenter_1F_Movement_PlayerExitWest::
 	delay_16
 	walk_down
 	step_end
+
+CinnabarIsland_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end

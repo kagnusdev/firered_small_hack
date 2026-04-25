@@ -147,3 +147,10 @@ Route4_PokemonCenter_1F_EventScript_Newspaper::
 	msgbox Route4_PokemonCenter_1F_Text_ItsANewspaper
 	release
 	end
+
+Route4_PokemonCenter_1F_EventScript_NatureChanger::
+	lock
+	faceplayer
+	call EventScript_NatureChanger
+	release
+	end
