@@ -78,6 +78,8 @@ static void GiveBoxMonInitialMoveset(struct BoxPokemon *boxMon);
 static u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, u16 move);
 static u8 GetLevelFromMonExp(struct Pokemon *mon);
 static u16 CalculateBoxMonChecksum(struct BoxPokemon *boxMon);
+static void RewriteMonDataWithNewPersonality(struct BoxPokemon *boxMon, u32 newPersonality);
+static u32 FixPersonalityGender(u32 personality, u32 newPersonality, u32 species);
 
 #include "data/battle_moves.h"
 
@@ -5057,10 +5059,37 @@ static void RewriteMonDataWithNewPersonality(struct BoxPokemon *boxMon, u32 newP
     EncryptBoxMon(boxMon);
 }
 
+static u32 FixPersonalityGender(u32 personality, u32 newPersonality, u32 species)
+{
+    u32 genderRatio = gSpeciesInfo[species].genderRatio;
+
+    if (genderRatio != MON_MALE && genderRatio != MON_FEMALE && genderRatio != MON_GENDERLESS)
+    {
+        u32 oldGender = genderRatio > (personality & 0xFF) ? MON_FEMALE : MON_MALE;
+        u32 newGender;
+
+        do
+        {
+            newGender = genderRatio > (newPersonality & 0xFF) ? MON_FEMALE : MON_MALE;
+            if (newGender < oldGender)
+            {
+                newPersonality += NUM_NATURES * 2;
+            }
+            else if (newGender > oldGender)
+            {
+                newPersonality -= NUM_NATURES * 2;
+            }
+        } while (newGender != oldGender);
+    }
+
+    return newPersonality;
+}
+
 bool32 SetNature(struct Pokemon *mon, u32 newNature)
 {
     u32 personality = GetMonData3(mon, MON_DATA_PERSONALITY, NULL);
-    u32 diff;
+    u32 species = GetMonData3(mon, MON_DATA_SPECIES, NULL);
+    u32 newPersonality = personality;
 
     if ((personality % NUM_NATURES) == newNature)
         return TRUE;
@@ -5068,9 +5097,14 @@ bool32 SetNature(struct Pokemon *mon, u32 newNature)
     if (newNature >= NUM_NATURES)
         return FALSE;
 
-    diff = newNature - (personality % NUM_NATURES);
+    newPersonality += newNature - (personality % NUM_NATURES);
+    if (gSpeciesInfo[species].abilities[1] != ABILITY_NONE && (newPersonality & 1) != (personality & 1))
+    {
+        newPersonality += NUM_NATURES;
+    }
+    newPersonality = FixPersonalityGender(personality, newPersonality, species);
 
-    RewriteMonDataWithNewPersonality(&mon->box, personality + diff);
+    RewriteMonDataWithNewPersonality(&mon->box, newPersonality);
 
     CalculateMonStats(mon);
     return TRUE;
