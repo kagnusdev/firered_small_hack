@@ -833,17 +833,17 @@
       "secondaryId": 0
     },
     {
-      "english": "????????",
-      "itemId": "ITEM_NONE",
-      "price": 0,
+      "english": "Abil. Caps.",
+      "itemId": "ITEM_ABILITY_CAPSULE",
+      "price": 1000,
       "holdEffect": "HOLD_EFFECT_NONE",
       "holdEffectParam": 0,
-      "description_english": "?????",
+      "description_english": "Permanently changes a \\nPokémon's Ability slot.",
       "importance": 0,
       "registrability": 0,
       "pocket": "POCKET_ITEMS",
-      "type": "ITEM_TYPE_BAG_MENU",
-      "fieldUseFunc": "FieldUseFunc_OakStopsYou",
+      "type": "ITEM_TYPE_PARTY_MENU",
+      "fieldUseFunc": "FieldUseFunc_AbilityCapsule",
       "battleUsage": 0,
       "battleUseFunc": "NULL",
       "secondaryId": 0
@@ -1105,7 +1105,7 @@
       "secondaryId": 0
     },
     {
-      "english": "Pp Up",
+      "english": "PP Up",
       "itemId": "ITEM_PP_UP",
       "price": 9800,
       "holdEffect": "HOLD_EFFECT_NONE",
@@ -1137,7 +1137,7 @@
       "secondaryId": 0
     },
     {
-      "english": "Pp Max",
+      "english": "PP Max",
       "itemId": "ITEM_PP_MAX",
       "price": 9800,
       "holdEffect": "HOLD_EFFECT_NONE",

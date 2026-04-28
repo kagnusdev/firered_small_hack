@@ -5115,6 +5115,31 @@ static u8 GetNatureFromPersonality(u32 personality)
     return personality % NUM_NATURES;
 }
 
+bool32 SetAbilityNum(struct Pokemon *mon, u32 abilityNum)
+{
+    u32 personality = GetMonData3(mon, MON_DATA_PERSONALITY, NULL);
+    u32 species = GetMonData3(mon, MON_DATA_SPECIES, NULL);
+    u32 newPersonality = personality;
+
+    if (abilityNum >= 2)
+    {
+        return FALSE;
+    }
+    if (abilityNum == (personality & 1))
+    {
+        return TRUE;
+    }
+
+    // keep nature unchanged but changes ability in personality
+    newPersonality += NUM_NATURES;
+    newPersonality = FixPersonalityGender(personality, newPersonality, species);
+
+    RewriteMonDataWithNewPersonality(&mon->box, newPersonality);
+    SetMonData(mon, MON_DATA_ABILITY_NUM, &abilityNum);
+
+    return TRUE;
+}
+
 u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem)
 {
     int i;

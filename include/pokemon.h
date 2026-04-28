@@ -370,6 +370,7 @@ u8 GetItemEffectParamOffset(u16 itemId, u8 effectByte, u8 effectBit);
 const u8 *Battle_PrintStatBoosterEffectMessage(u16 itemId);
 u8 GetNature(struct Pokemon *mon);
 bool32 SetNature(struct Pokemon *mon, u32 newNature);
+bool32 SetAbilityNum(struct Pokemon *mon, u32 abilityNum);
 u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem);
 u16 NationalPokedexNumToSpecies(u16 nationalNum);
 u16 SpeciesToNationalPokedexNum(u16 species);

@@ -741,6 +741,13 @@ void Task_ItemUse_CloseMessageBoxAndReturnToField_VsSeeker(u8 taskId)
     Task_ItemUse_CloseMessageBoxAndReturnToField(taskId);
 }
 
+void FieldUseFunc_AbilityCapsule(u8 taskId)
+{
+    gItemUseCB = ItemUseCB_AbilityCapsule;
+    ItemMenu_SetExitCallback(CB2_ShowPartyMenuForItemUse);
+    ItemMenu_StartFadeToExitCallback(taskId);
+}
+
 void BattleUseFunc_PokeBallEtc(u8 taskId)
 {
     if (!IsPlayerPartyAndPokemonStorageFull())

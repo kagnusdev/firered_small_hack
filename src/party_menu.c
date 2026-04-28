@@ -5098,7 +5098,7 @@ void ItemUseCB_PokeBallEtc(u8 taskId, TaskFunc func)
         if (AddBagItem(currBall, 1))
         {
             gTasks[taskId].tOldBall = (u16)currBall;
-            gTasks[taskId].func = Task_PrintBallRetrievedAfterText;
+            SetTaskFuncWithFollowupFunc(taskId, Task_PrintBallRetrievedAfterText, func);
         }
         else
         {
@@ -5118,8 +5118,39 @@ static void Task_PrintBallRetrievedAfterText(u8 taskId)
         StringExpandPlaceholders(gStringVar4, sText_MonBallWasRetrieved);
         DisplayPartyMenuMessage(gStringVar4, TRUE);
         ScheduleBgCopyTilemapToVram(2);
-        gTasks[taskId].func = Task_ClosePartyMenuAfterText;
+        SwitchTaskToFollowupFunc(taskId);
     }
+}
+
+#undef tOldBall
+
+static const u8 sText_MonAbilityWasChanged[] = _("{STR_VAR_1}'s ability was changed to\n{STR_VAR_2}.{PAUSE_UNTIL_PRESS}");
+
+void ItemUseCB_AbilityCapsule(u8 taskId, TaskFunc func)
+{
+    struct Pokemon *mon = &gPlayerParty[gPartyMenu.slotId];
+    u32 species = GetMonData3(mon, MON_DATA_SPECIES, NULL);
+    u32 abilityNum;
+
+    if (gSpeciesInfo[species].abilities[1] == ABILITY_NONE)
+    {
+        DisplayPartyMenuMessage(gText_WontHaveEffect, FALSE);
+        ScheduleBgCopyTilemapToVram(2);
+        gTasks[taskId].func = Task_ReturnToChooseMonAfterText;
+        return;
+    }
+    abilityNum = GetMonData3(mon, MON_DATA_ABILITY_NUM, NULL);
+    abilityNum ^= 1;
+    GetMonNickname(mon, gStringVar1);
+    StringCopy(gStringVar2, gAbilityNames[gSpeciesInfo[species].abilities[abilityNum]]);
+    PlaySE(SE_SELECT);
+    gPartyMenuUseExitCallback = TRUE;
+    SetAbilityNum(mon, abilityNum);
+    StringExpandPlaceholders(gStringVar4, sText_MonAbilityWasChanged);
+    DisplayPartyMenuMessage(gStringVar4, TRUE);
+    ScheduleBgCopyTilemapToVram(2);
+    RemoveBagItem(gSpecialVar_ItemId, 1);
+    gTasks[taskId].func = func;
 }
 
 void ItemUseCB_RareCandy(u8 taskId, TaskFunc func)
