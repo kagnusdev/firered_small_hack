@@ -16,3 +16,15 @@ void SeedRng(u16 seed)
 {
     gRngValue = seed;
 }
+
+u16 NextRandom(u32 *seed)
+{
+    *seed = ISO_RANDOMIZE1(*seed);
+    return (*seed) >> 16;
+}
+
+u16 PrevRandom(u32 *seed)
+{
+    *seed = ISO_INVERSE_RANDOMIZE1(*seed);
+    return (*seed) >> 16;
+}
