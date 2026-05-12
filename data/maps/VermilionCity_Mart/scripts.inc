@@ -30,6 +30,7 @@ VermilionCity_Mart_Items::
 	.2byte ITEM_ICE_HEAL
 	.2byte ITEM_REPEL
 	.2byte ITEM_ABILITY_CAPSULE
+	.2byte ITEM_LINKING_CORD
 	.2byte ITEM_NONE
 	release
 	end

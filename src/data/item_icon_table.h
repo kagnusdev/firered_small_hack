@@ -58,7 +58,7 @@ static const u32 *const sItemIconTable[ITEMS_COUNT + 1][2] =
     // Replaced items
     [ITEM_ABILITY_CAPSULE] = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},
     // ????????
-    [ITEM_035]            = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},
+    [ITEM_LINKING_CORD]            = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},
     [ITEM_036]            = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},
     [ITEM_037]            = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},
     [ITEM_038]            = {gItemIcon_QuestionMark, gItemIconPalette_QuestionMark},

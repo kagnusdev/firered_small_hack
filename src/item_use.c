@@ -203,10 +203,15 @@ static void Task_ItemUse_CloseMessageBoxAndReturnToField(u8 taskId)
 
 u8 CheckIfItemIsTMHMOrEvolutionStone(u16 itemId)
 {
+    ItemUseFunc func;
+
     if (ItemId_GetPocket(itemId) == POCKET_TM_CASE)
         return 1;
-    else if (ItemId_GetFieldFunc(itemId) == FieldUseFunc_EvoItem)
+    func = ItemId_GetFieldFunc(itemId);
+    if (func == FieldUseFunc_EvoItem)
         return 2;
+    else if (func == FieldUseFunc_LinkingCord)
+        return 3;
     else
         return 0;
 }
@@ -744,6 +749,13 @@ void Task_ItemUse_CloseMessageBoxAndReturnToField_VsSeeker(u8 taskId)
 void FieldUseFunc_AbilityCapsule(u8 taskId)
 {
     gItemUseCB = ItemUseCB_AbilityCapsule;
+    ItemMenu_SetExitCallback(CB2_ShowPartyMenuForItemUse);
+    ItemMenu_StartFadeToExitCallback(taskId);
+}
+
+void FieldUseFunc_LinkingCord(u8 taskId)
+{
+    gItemUseCB = ItemUseCB_LinkingCord;
     ItemMenu_SetExitCallback(CB2_ShowPartyMenuForItemUse);
     ItemMenu_StartFadeToExitCallback(taskId);
 }

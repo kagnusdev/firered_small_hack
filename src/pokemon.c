@@ -5230,6 +5230,7 @@ u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem)
         }
         break;
     case EVO_MODE_TRADE:
+    case EVO_MODE_TRADE_CHECK:
         for (i = 0; i < EVOS_PER_MON; i++)
         {
             switch (gEvolutionTable[species][i].method)
@@ -5244,6 +5245,7 @@ u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem)
                     
                     // Prevent cross-generational evolutions like Scizor and Steelix until the National Pokedex is obtained
                     // if (IsNationalPokedexEnabled() || targetSpecies <= KANTO_SPECIES_END)
+                    if (type != EVO_MODE_TRADE_CHECK)
                     {
                         heldItem = ITEM_NONE;
                         SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);

@@ -880,6 +880,11 @@ static bool8 DisplayPartyPokemonDataForMoveTutorOrEvolutionItem(u8 slot)
                 return FALSE;
             DisplayPartyPokemonDescriptionData(slot, PARTYBOX_DESC_NO_USE);
             break;
+        case 3: // Linking cord
+            if (!GetMonData(currentPokemon, MON_DATA_IS_EGG) && GetEvolutionTargetSpecies(currentPokemon, EVO_MODE_TRADE_CHECK, item) != SPECIES_NONE)
+                return FALSE;
+            DisplayPartyPokemonDescriptionData(slot, PARTYBOX_DESC_NO_USE);
+            break;
         }
     }
     return TRUE;
@@ -5205,6 +5210,26 @@ void ItemUseCB_AbilityCapsule(u8 taskId, TaskFunc func)
 #undef tSpecies
 #undef tAbilityNum
 #undef tMonId
+
+void ItemUseCB_LinkingCord(u8 taskId, TaskFunc func)
+{
+    struct Pokemon *mon = &gPlayerParty[gPartyMenu.slotId];
+    u32 species = GetMonData3(mon, MON_DATA_SPECIES, NULL);
+    u32 targetSpecies = GetEvolutionTargetSpecies(mon, EVO_MODE_TRADE, gSpecialVar_ItemId);
+
+    if (targetSpecies == SPECIES_NONE)
+    {
+        DisplayPartyMenuMessage(gText_WontHaveEffect, FALSE);
+        ScheduleBgCopyTilemapToVram(2);
+        gTasks[taskId].func = Task_ReturnToChooseMonAfterText;
+        return;
+    }
+    FreePartyPointers();
+    gCB2_AfterEvolution = gPartyMenu.exitCallback;
+    BeginEvolutionScene(mon, targetSpecies, FALSE, gPartyMenu.slotId);
+    RemoveBagItem(gSpecialVar_ItemId, 1);
+    DestroyTask(taskId);
+}
 
 void ItemUseCB_RareCandy(u8 taskId, TaskFunc func)
 {
